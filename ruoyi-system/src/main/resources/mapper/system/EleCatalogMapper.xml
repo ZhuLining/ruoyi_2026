@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EleCatalogMapper">
+
+    <resultMap type="EleCatalog" id="EleCatalogResult">
+        <id     property="catalogId"    column="catalog_id"      />
+        <result property="parentId"     column="parent_id"       />
+        <result property="ancestors"    column="ancestors"       />
+        <result property="catalogName"  column="catalog_name"    />
+        <result property="orderNum"     column="order_num"       />
+        <result property="catalogCode"  column="catalog_code"    />
+        <result property="state"        column="state"           />
+        <result property="delFlag"      column="del_flag"        />
+        <result property="createBy"     column="create_by"       />
+        <result property="createTime"   column="create_time"     />
+        <result property="updateBy"     column="update_by"       />
+        <result property="updateTime"   column="update_time"     />
+        <result property="remark"       column="remark"          />
+        <result property="userId"       column="user_id"         />
+        <result property="deptId"       column="dept_id"         />
+    </resultMap>
+
+    <sql id="selectEleCatalogVo">
+        select catalog_id, parent_id, ancestors, catalog_name, order_num, catalog_code, state, del_flag, create_by, create_time, update_by, update_time, remark, user_id, dept_id
+        from ele_catalog
+    </sql>
+
+    <select id="selectEleCatalogList" parameterType="EleCatalog" resultMap="EleCatalogResult">
+        <include refid="selectEleCatalogVo"/>
+        where del_flag = '0'
+        <if test="catalogName != null and catalogName != ''">
+            AND catalog_name like concat('%', #{catalogName}, '%')
+        </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
+        </if>
+        <if test="catalogCode != null and catalogCode != ''">
+            AND catalog_code = #{catalogCode}
+        </if>
+        <if test="parentId != null">
+            AND parent_id = #{parentId}
+        </if>
+        order by parent_id, order_num
+    </select>
+
+    <select id="selectEleCatalogById" parameterType="Long" resultMap="EleCatalogResult">
+        <include refid="selectEleCatalogVo"/>
+        where catalog_id = #{catalogId} and del_flag = '0'
+    </select>
+
+    <select id="checkCatalogCodeUnique" parameterType="String" resultMap="EleCatalogResult">
+        <include refid="selectEleCatalogVo"/>
+        where catalog_code = #{catalogCode} and del_flag = '0' limit 1
+    </select>
+
+    <select id="hasChildByCatalogId" parameterType="Long" resultType="int">
+        select count(*) from ele_catalog where parent_id = #{catalogId} and del_flag = '0'
+    </select>
+
+    <insert id="insertEleCatalog" parameterType="EleCatalog">
+        insert into ele_catalog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="catalogId != null">catalog_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="ancestors != null">ancestors,</if>
+            <if test="catalogName != null">catalog_name,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="catalogCode != null">catalog_code,</if>
+            <if test="state != null">state,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="catalogId != null">#{catalogId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="ancestors != null">#{ancestors},</if>
+            <if test="catalogName != null">#{catalogName},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="catalogCode != null">#{catalogCode},</if>
+            <if test="state != null">#{state},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEleCatalog" parameterType="EleCatalog">
+        update ele_catalog
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="ancestors != null">ancestors = #{ancestors},</if>
+            <if test="catalogName != null">catalog_name = #{catalogName},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="catalogCode != null">catalog_code = #{catalogCode},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </set>
+        where catalog_id = #{catalogId}
+    </update>
+
+    <update id="deleteEleCatalogById" parameterType="Long">
+        update ele_catalog set del_flag = '2' where catalog_id = #{catalogId}
+    </update>
+
+    <update id="deleteEleCatalogByIds">
+        update ele_catalog set del_flag = '2' where catalog_id in
+        <foreach collection="array" item="catalogId" open="(" separator="," close=")">
+            #{catalogId}
+        </foreach>
+    </update>
+
+</mapper>

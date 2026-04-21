@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EleTableMapper">
+
+    <resultMap type="EleTable" id="EleTableResult">
+        <id     property="eleId"            column="ele_id"            />
+        <result property="eleName"          column="ele_name"          />
+        <result property="eleCode"          column="ele_code"          />
+        <result property="catalogId"        column="catalog_id"        />
+        <result property="eleType"          column="ele_type"          />
+        <result property="eleDefaultValue"  column="ele_default_value" />
+        <result property="orderNum"         column="order_num"         />
+        <result property="state"            column="state"             />
+        <result property="delFlag"          column="del_flag"          />
+        <result property="createBy"         column="create_by"         />
+        <result property="createTime"       column="create_time"       />
+        <result property="updateBy"         column="update_by"         />
+        <result property="updateTime"       column="update_time"       />
+        <result property="remark"           column="remark"            />
+        <result property="userId"           column="user_id"           />
+        <result property="deptId"           column="dept_id"           />
+    </resultMap>
+
+    <sql id="selectEleTableVo">
+        select ele_id, ele_name, ele_code, catalog_id, ele_type, ele_default_value, order_num, state, del_flag, create_by, create_time, update_by, update_time, remark, user_id, dept_id
+        from ele_table
+    </sql>
+
+    <select id="selectEleTableList" parameterType="EleTable" resultMap="EleTableResult">
+        <include refid="selectEleTableVo"/>
+        where del_flag = '0'
+        <if test="eleName != null and eleName != ''">
+            AND ele_name like concat('%', #{eleName}, '%')
+        </if>
+        <if test="eleCode != null and eleCode != ''">
+            AND ele_code = #{eleCode}
+        </if>
+        <if test="catalogId != null">
+            AND catalog_id = #{catalogId}
+        </if>
+        <if test="eleType != null and eleType != ''">
+            AND ele_type = #{eleType}
+        </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
+        </if>
+        order by order_num
+    </select>
+
+    <select id="selectEleTableById" parameterType="Long" resultMap="EleTableResult">
+        <include refid="selectEleTableVo"/>
+        where ele_id = #{eleId} and del_flag = '0'
+    </select>
+
+    <select id="checkEleCodeUnique" parameterType="String" resultMap="EleTableResult">
+        <include refid="selectEleTableVo"/>
+        where ele_code = #{eleCode} and del_flag = '0' limit 1
+    </select>
+
+    <insert id="insertEleTable" parameterType="EleTable">
+        insert into ele_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="eleId != null">ele_id,</if>
+            <if test="eleName != null">ele_name,</if>
+            <if test="eleCode != null">ele_code,</if>
+            <if test="catalogId != null">catalog_id,</if>
+            <if test="eleType != null">ele_type,</if>
+            <if test="eleDefaultValue != null">ele_default_value,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="state != null">state,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="eleId != null">#{eleId},</if>
+            <if test="eleName != null">#{eleName},</if>
+            <if test="eleCode != null">#{eleCode},</if>
+            <if test="catalogId != null">#{catalogId},</if>
+            <if test="eleType != null">#{eleType},</if>
+            <if test="eleDefaultValue != null">#{eleDefaultValue},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="state != null">#{state},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEleTable" parameterType="EleTable">
+        update ele_table
+        <set>
+            <if test="eleName != null">ele_name = #{eleName},</if>
+            <if test="eleCode != null">ele_code = #{eleCode},</if>
+            <if test="catalogId != null">catalog_id = #{catalogId},</if>
+            <if test="eleType != null">ele_type = #{eleType},</if>
+            <if test="eleDefaultValue != null">ele_default_value = #{eleDefaultValue},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </set>
+        where ele_id = #{eleId}
+    </update>
+
+    <update id="deleteEleTableById" parameterType="Long">
+        update ele_table set del_flag = '2' where ele_id = #{eleId}
+    </update>
+
+    <update id="deleteEleTableByIds">
+        update ele_table set del_flag = '2' where ele_id in
+        <foreach collection="array" item="eleId" open="(" separator="," close=")">
+            #{eleId}
+        </foreach>
+    </update>
+
+</mapper>
