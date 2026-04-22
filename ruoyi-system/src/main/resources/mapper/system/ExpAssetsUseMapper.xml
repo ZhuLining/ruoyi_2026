@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ExpAssetsUseMapper">
+
+    <resultMap type="ExpAssetsUse" id="ExpAssetsUseResult">
+        <id     property="useId"        column="use_id"        />
+        <result property="assetsId"     column="assets_id"     />
+        <result property="useNumber"    column="use_number"    />
+        <result property="userId"       column="user_id"       />
+        <result property="userName"     column="user_name"     />
+        <result property="createTime"   column="create_time"   />
+        <result property="remark"       column="remark"        />
+        <result property="createBy"     column="create_by"     />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+    </resultMap>
+
+    <sql id="selectExpAssetsUseVo">
+        select use_id, assets_id, use_number, user_id, user_name, create_time, remark, create_by, update_by, update_time
+        from exp_assets_use
+    </sql>
+
+    <select id="selectExpAssetsUseList" parameterType="ExpAssetsUse" resultMap="ExpAssetsUseResult">
+        <include refid="selectExpAssetsUseVo"/>
+        where 1=1
+        <if test="assetsId != null">
+            AND assets_id = #{assetsId}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND user_name like concat('%', #{userName}, '%')
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectExpAssetsUseById" parameterType="Long" resultMap="ExpAssetsUseResult">
+        <include refid="selectExpAssetsUseVo"/>
+        where use_id = #{useId}
+    </select>
+
+    <insert id="insertExpAssetsUse" parameterType="ExpAssetsUse">
+        insert into exp_assets_use
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="useId != null">use_id,</if>
+            <if test="assetsId != null">assets_id,</if>
+            <if test="useNumber != null">use_number,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="useId != null">#{useId},</if>
+            <if test="assetsId != null">#{assetsId},</if>
+            <if test="useNumber != null">#{useNumber},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExpAssetsUse" parameterType="ExpAssetsUse">
+        update exp_assets_use
+        <set>
+            <if test="assetsId != null">assets_id = #{assetsId},</if>
+            <if test="useNumber != null">use_number = #{useNumber},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where use_id = #{useId}
+    </update>
+
+    <delete id="deleteExpAssetsUseById" parameterType="Long">
+        delete from exp_assets_use where use_id = #{useId}
+    </delete>
+
+    <delete id="deleteExpAssetsUseByIds">
+        delete from exp_assets_use where use_id in
+        <foreach collection="array" item="useId" open="(" separator="," close=")">
+            #{useId}
+        </foreach>
+    </delete>
+
+</mapper>

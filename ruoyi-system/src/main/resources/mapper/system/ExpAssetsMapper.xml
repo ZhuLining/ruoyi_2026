@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ExpAssetsMapper">
+
+    <resultMap type="ExpAssets" id="ExpAssetsResult">
+        <id     property="assetsId"              column="assets_id"              />
+        <result property="assetsName"            column="assets_name"            />
+        <result property="assetsType"            column="assets_type"            />
+        <result property="assetsNumber"          column="assets_number"          />
+        <result property="useTotalNumber"        column="use_total_number"       />
+        <result property="assetsThreshold"       column="assets_threshold"       />
+        <result property="supplierType"          column="supplier_type"          />
+        <result property="assetsModel"           column="assets_model"           />
+        <result property="assetsStoreId"         column="assets_store_id"        />
+        <result property="assetsStoreName"       column="assets_store_name"      />
+        <result property="assetsExpirationDate"  column="assets_expiration_date" />
+        <result property="assetsCatalogId"       column="assets_catalog_id"      />
+        <result property="status"                column="status"                 />
+        <result property="delFlag"               column="del_flag"               />
+        <result property="createBy"              column="create_by"              />
+        <result property="createTime"            column="create_time"            />
+        <result property="updateBy"              column="update_by"              />
+        <result property="updateTime"            column="update_time"            />
+        <result property="remark"                column="remark"                 />
+        <result property="userId"                column="user_id"                />
+        <result property="deptId"                column="dept_id"                />
+    </resultMap>
+
+    <sql id="selectExpAssetsVo">
+        select assets_id, assets_name, assets_type, assets_number, use_total_number, assets_threshold, supplier_type, assets_model, assets_store_id, assets_store_name, assets_expiration_date, assets_catalog_id, status, del_flag, create_by, create_time, update_by, update_time, remark, user_id, dept_id
+        from exp_assets
+    </sql>
+
+    <select id="selectExpAssetsList" parameterType="ExpAssets" resultMap="ExpAssetsResult">
+        <include refid="selectExpAssetsVo"/>
+        where del_flag = '0'
+        <if test="assetsName != null and assetsName != ''">
+            AND assets_name like concat('%', #{assetsName}, '%')
+        </if>
+        <if test="assetsType != null and assetsType != ''">
+            AND assets_type = #{assetsType}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectExpAssetsById" parameterType="Long" resultMap="ExpAssetsResult">
+        <include refid="selectExpAssetsVo"/>
+        where assets_id = #{assetsId} and del_flag = '0'
+    </select>
+
+    <insert id="insertExpAssets" parameterType="ExpAssets">
+        insert into exp_assets
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="assetsId != null">assets_id,</if>
+            <if test="assetsName != null">assets_name,</if>
+            <if test="assetsType != null">assets_type,</if>
+            <if test="assetsNumber != null">assets_number,</if>
+            <if test="useTotalNumber != null">use_total_number,</if>
+            <if test="assetsThreshold != null">assets_threshold,</if>
+            <if test="supplierType != null">supplier_type,</if>
+            <if test="assetsModel != null">assets_model,</if>
+            <if test="assetsStoreId != null">assets_store_id,</if>
+            <if test="assetsStoreName != null">assets_store_name,</if>
+            <if test="assetsExpirationDate != null">assets_expiration_date,</if>
+            <if test="assetsCatalogId != null">assets_catalog_id,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="assetsId != null">#{assetsId},</if>
+            <if test="assetsName != null">#{assetsName},</if>
+            <if test="assetsType != null">#{assetsType},</if>
+            <if test="assetsNumber != null">#{assetsNumber},</if>
+            <if test="useTotalNumber != null">#{useTotalNumber},</if>
+            <if test="assetsThreshold != null">#{assetsThreshold},</if>
+            <if test="supplierType != null">#{supplierType},</if>
+            <if test="assetsModel != null">#{assetsModel},</if>
+            <if test="assetsStoreId != null">#{assetsStoreId},</if>
+            <if test="assetsStoreName != null">#{assetsStoreName},</if>
+            <if test="assetsExpirationDate != null">#{assetsExpirationDate},</if>
+            <if test="assetsCatalogId != null">#{assetsCatalogId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExpAssets" parameterType="ExpAssets">
+        update exp_assets
+        <set>
+            <if test="assetsName != null">assets_name = #{assetsName},</if>
+            <if test="assetsType != null">assets_type = #{assetsType},</if>
+            <if test="assetsNumber != null">assets_number = #{assetsNumber},</if>
+            <if test="useTotalNumber != null">use_total_number = #{useTotalNumber},</if>
+            <if test="assetsThreshold != null">assets_threshold = #{assetsThreshold},</if>
+            <if test="supplierType != null">supplier_type = #{supplierType},</if>
+            <if test="assetsModel != null">assets_model = #{assetsModel},</if>
+            <if test="assetsStoreId != null">assets_store_id = #{assetsStoreId},</if>
+            <if test="assetsStoreName != null">assets_store_name = #{assetsStoreName},</if>
+            <if test="assetsExpirationDate != null">assets_expiration_date = #{assetsExpirationDate},</if>
+            <if test="assetsCatalogId != null">assets_catalog_id = #{assetsCatalogId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </set>
+        where assets_id = #{assetsId}
+    </update>
+
+    <update id="deleteExpAssetsById" parameterType="Long">
+        update exp_assets set del_flag = '2' where assets_id = #{assetsId}
+    </update>
+
+    <update id="deleteExpAssetsByIds">
+        update exp_assets set del_flag = '2' where assets_id in
+        <foreach collection="array" item="assetsId" open="(" separator="," close=")">
+            #{assetsId}
+        </foreach>
+    </update>
+
+</mapper>
