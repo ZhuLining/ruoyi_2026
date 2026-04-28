@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.experimental.ExpSopTemMapper">
+
+    <resultMap type="ExpTemCatalogDto" id="catalogResult">
+        <id     property="temCatalogId"       column="tem_catalog_id"      />
+        <result property="temCatalogName"     column="tem_catalog_name"    />
+        <result property="temCatalogCode"     column="tem_catalog_code"    />
+        <result property="parentId"        column="parent_id"    />
+        <result property="parentName"      column="parent_name"    />
+        <result property="createTime"   column="create_time"  />
+        <result property="updateTime"   column="update_time"  />
+    </resultMap>
+
+    <resultMap type="ExpTemBaseDto" id="TemBaseResult">
+        <id     property="temId"       column="tem_id"      />
+        <result property="temName"     column="tem_name"    />
+        <result property="temCode"     column="tem_code"    />
+        <result property="temCatalogId" column="tem_catalog_id" />
+        <result property="remark"      column="remark"    />
+    </resultMap>
+
+    <resultMap type="ExpStep" id="ExpStepResult">
+        <result property="stepId"     column="step_id"    />
+        <result property="stepName"     column="step_name"    />
+        <result property="stepCode"     column="step_code"    />
+    </resultMap>
+
+    <resultMap type="ExpTemBaseDto" id="ExpEleResult">
+        <id     property="expEleId"  column="exp_ele_id"      />
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="catalogName"     column="catalog_name"    />
+        <result property="catalogCode"     column="catalog_code"    />
+        <result property="eleId"       column="ele_id"    />
+        <result property="eleName"     column="ele_name"    />
+        <result property="eleCode"     column="ele_code"    />
+        <result property="eleType"     column="ele_type"    />
+        <result property="eleValue"     column="ele_value"    />
+        <result property="remark"     column="remark"    />
+    </resultMap>
+
+    <resultMap type="ExpAssetsDto" id="ExpAssResult">
+        <id     property="expAssetsId"  column="exp_assets_id"      />
+        <result property="assetsId"     column="assets_id"    />
+        <result property="assetsName"     column="assets_name"    />
+        <result property="assetsType"       column="assets_type"    />
+        <result property="expAssetsNumber"  column="exp_assets_number"    />
+        <result property="assetsCatalogId"    column="assets_catalog_id"    />
+        <result property="assetsCatalogName"     column="assets_catalog_name" />
+    </resultMap>
+
+    <resultMap type="ExpTemDto" id="ExpTemResult">
+        <id     property="temId"       column="tem_id"      />
+        <result property="temName"     column="tem_name"    />
+        <result property="temCode"     column="tem_code"    />
+        <result property="temCatalogId"     column="tem_catalog_id"    />
+        <result property="createTime"       column="create_time"    />
+    </resultMap>
+
+    <sql id="selectTemCatalogVo">
+        select tem_catalog_id, tem_catalog_code, tem_catalog_name,
+               parent_id, parent_name, create_time
+        from exp_sop_tem_catalog etc
+    </sql>
+
+    <select id="queryCatalog" parameterType="ExpTemCatalogDto" resultMap="catalogResult">
+        <include refid="selectTemCatalogVo"/>
+        where state = '10A'
+    </select>
+
+    <select id="queryCatalogById" parameterType="Long" resultMap="catalogResult">
+        select etc.tem_catalog_id, etc.tem_catalog_name, etc.tem_catalog_code,
+               etc.parent_id, etc.parent_name, etc.create_time
+        from exp_sop_tem_catalog etc
+        where etc.tem_catalog_id = #{temCatalogId}
+    </select>
+
+    <insert id="insertCatalog" parameterType="ExpTemCatalogDto" useGeneratedKeys="true" keyProperty="temCatalogId">
+        insert into exp_sop_tem_catalog(
+        <if test="temCatalogName != null and temCatalogName != ''">tem_catalog_name,</if>
+        <if test="temCatalogCode != null and temCatalogCode != ''">tem_catalog_code,</if>
+        <if test="parentId != null and parentId != ''">parent_id,</if>
+        <if test="parentName != null and parentName != ''">parent_name,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="userId != null and userId != ''">user_id,</if>
+        <if test="deptId != null and deptId != ''">dept_id,</if>
+        create_time
+        )values(
+        <if test="temCatalogName != null and temCatalogName != ''">#{temCatalogName},</if>
+        <if test="temCatalogCode != null and temCatalogCode != ''">#{temCatalogCode},</if>
+        <if test="parentId != null and parentId != ''">#{parentId},</if>
+        <if test="parentName != null and parentName != ''">#{parentName},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="deptId != null and deptId != ''">#{deptId},</if>
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateCatalog" parameterType="ExpTemCatalogDto">
+        update exp_sop_tem_catalog
+        <set>
+            <if test="temCatalogName != null and temCatalogName != ''">tem_catalog_name = #{temCatalogName},</if>
+            <if test="temCatalogCode != null and temCatalogCode != ''">tem_catalog_code = #{temCatalogCode},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where tem_catalog_id = #{temCatalogId}
+    </update>
+
+    <delete id="deleteCatalogById" parameterType="Long">
+        update exp_sop_tem_catalog set state = '10P' where tem_catalog_id = #{temCatalogId}
+    </delete>
+
+    <insert id="insertTem" parameterType="ExpTemBaseDto" useGeneratedKeys="true" keyProperty="temId">
+        insert into exp_sop_tem_table(
+        <if test="temName != null and temName != ''">tem_name,</if>
+        <if test="temCode != null and temCode != ''">tem_code,</if>
+        <if test="temCatalogId != null">tem_catalog_id,</if>
+        <if test="createStaffId != null">create_staff_id,</if>
+        <if test="createStaffName != null and createStaffName != ''">create_staff_name,</if>
+        <if test="createDeptId != null">create_dept_id,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="temName != null and temName != ''">#{temName},</if>
+        <if test="temCode != null and temCode != ''">#{temCode},</if>
+        <if test="temCatalogId != null">#{temCatalogId},</if>
+        <if test="createStaffId != null">#{createStaffId},</if>
+        <if test="createStaffName != null and createStaffName != ''">#{createStaffName},</if>
+        <if test="createDeptId != null">#{createDeptId},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertTemStep" parameterType="ExpTemBaseDto" useGeneratedKeys="true" keyProperty="stepId">
+        insert into exp_step(
+        <if test="temId != null and temId != ''">tem_id,</if>
+        <if test="stepCode != null and stepCode != ''">step_code,</if>
+        <if test="stepName != null and stepName != ''">step_name,</if>
+        create_time
+        )values(
+        <if test="temId != null and temId != ''">#{temId},</if>
+        <if test="stepCode != null and stepCode != ''">#{stepCode},</if>
+        <if test="stepName != null and stepName != ''">#{stepName},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpEle" parameterType="ExpTemBaseDto" useGeneratedKeys="true" keyProperty="expEleId">
+        insert into exp_ele(
+        <if test="temId != null and temId != ''">tem_id,</if>
+        <if test="stepId != null and stepId != ''">step_id,</if>
+        <if test="catalogId != null and catalogId != ''">catalog_id,</if>
+        create_time
+        )values(
+        <if test="temId != null and temId != ''">#{temId},</if>
+        <if test="stepId != null and stepId != ''">#{stepId},</if>
+        <if test="catalogId != null and catalogId != ''">#{catalogId},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpEleData" parameterType="ExpTemBaseDto" useGeneratedKeys="true" keyProperty="id">
+        insert into exp_ele_data(
+        <if test="temId != null and temId != ''">tem_id,</if>
+        <if test="expEleId != null and expEleId != ''">exp_ele_id,</if>
+        <if test="eleId != null and eleId != ''">ele_id,</if>
+        <if test="eleValue != null and eleValue != ''">ele_value,</if>
+        create_time
+        )values(
+        <if test="temId != null and temId != ''">#{temId},</if>
+        <if test="expEleId != null and expEleId != ''">#{expEleId},</if>
+        <if test="eleId != null and eleId != ''">#{eleId},</if>
+        <if test="eleValue != null and eleValue != ''">#{eleValue},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpAssets" parameterType="ExpAssetsDto">
+        insert into exp_exp_assets(
+        <if test="temId != null and temId != ''">tem_id,</if>
+        <if test="assetsId != null and assetsId != ''">assets_id,</if>
+        <if test="stepId != null and stepId != ''">step_id,</if>
+        <if test="expAssetsNumber != null and expAssetsNumber != ''">exp_assets_number</if>
+        )values(
+        <if test="temId != null and temId != ''">#{temId},</if>
+        <if test="assetsId != null and assetsId != ''">#{assetsId},</if>
+        <if test="stepId != null and stepId != ''">#{stepId},</if>
+        <if test="expAssetsNumber != null and expAssetsNumber != ''">#{expAssetsNumber}</if>
+        )
+    </insert>
+
+    <select id="queryTemById" parameterType="Long" resultMap="TemBaseResult">
+        select ett.tem_id, ett.tem_code, ett.tem_name, ett.remark, ett.tem_catalog_id
+        from exp_sop_tem_table ett
+        where ett.tem_id = #{temId}
+    </select>
+
+    <select id="queryStepById" parameterType="Long" resultMap="ExpStepResult">
+        select es.step_id, es.step_name, es.step_code
+        from exp_step es
+        where es.tem_id = #{temId}
+    </select>
+
+    <select id="selectExpById" parameterType="Long" resultMap="ExpEleResult">
+        select ee.exp_ele_id,
+               ee.catalog_id,ec.catalog_code,ec.catalog_name,
+               eed.ele_id, elt.ele_code, elt.ele_name, elt.ele_type, eed.ele_value, elt.remark
+        from exp_ele ee
+                 left join exp_ele_data eed on ee.exp_ele_id = eed.exp_ele_id
+                 left join ele_catalog ec on ee.catalog_id = ec.catalog_id
+                 left join ele_table elt on eed.ele_id = elt.ele_id
+        where ee.step_id = #{stepId} and ee.state = '10A'
+        order by ee.exp_ele_id;
+    </select>
+
+    <select id="selectExpAssById" parameterType="Long" resultMap="ExpAssResult">
+        select eea.exp_assets_id, eea.assets_id, eea.exp_assets_number,
+               ea.assets_name, ea.assets_type, ea.assets_catalog_name,ea.assets_catalog_id
+        from exp_exp_assets eea
+                 left join exp_assets ea on ea.assets_id = eea.assets_id
+        where eea.step_id = #{stepId};
+    </select>
+
+    <update id="updateTem" parameterType="ExpTemBaseDto">
+        update exp_sop_tem_table
+        <set>
+            <if test="temName != null and temName != ''">tem_name = #{temName},</if>
+            <if test="temCode != null and temCode != ''">tem_code = #{temCode},</if>
+            <if test="temCatalogId != null">tem_catalog_id = #{temCatalogId},</if>
+            <if test="updateStaffId != null">update_staff_id = #{updateStaffId},</if>
+            <if test="updateStaffName != null and updateStaffName != ''">update_staff_name = #{updateStaffName},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where tem_id = #{temId}
+    </update>
+
+    <delete id="deleteExpEle" parameterType="Long">
+        delete from exp_ele where tem_id in
+        <foreach item="temId" collection="array" open="(" separator="," close=")">
+            #{temId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpEleData" parameterType="Long">
+        delete from exp_ele_data where tem_id in
+        <foreach item="temId" collection="array" open="(" separator="," close=")">
+            #{temId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpStep" parameterType="Long">
+        delete from exp_step where tem_id in
+        <foreach item="temId" collection="array" open="(" separator="," close=")">
+            #{temId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpAssets" parameterType="Long">
+        delete from exp_exp_assets where tem_id in
+        <foreach item="temId" collection="array" open="(" separator="," close=")">
+            #{temId}
+        </foreach>
+
+    </delete>
+
+    <delete id="deleteExpTableByTemIds" parameterType="String">
+        delete from exp_sop_tem_table where tem_id in
+        <foreach item="temId" collection="array" open="(" separator="," close=")">
+            #{temId}
+        </foreach>
+    </delete>
+
+    <select id="queryList" parameterType="ExpTemDto" resultMap="ExpTemResult">
+        select tem_id, tem_name, tem_code, create_time, tem_catalog_id
+        from exp_sop_tem_table ett
+        where tem_catalog_id = #{temCatalogId}
+        <if test="temCode != null and temCode != ''">
+            AND tem_code = #{temCode}
+        </if>
+        <if test="temName != null and temName != ''">
+            AND tem_name like concat('%', #{temName}, '%')
+        </if>
+    </select>
+
+    <select id="checkExistTem" parameterType="Long" resultType="int">
+        select count(1) from exp_sop_tem_table where tem_catalog_id = #{catalogId}
+    </select>
+
+</mapper>

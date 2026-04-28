@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.experimental.ExpOperateLogMapper">
+
+    <resultMap type="ExpOperateLog" id="ExpOperateLogResult">
+        <result property="logId"    column="log_id"    />
+        <result property="expId"    column="exp_id"    />
+        <result property="expName"    column="exp_name"    />
+        <result property="operateStaffId"    column="operate_staff_id"    />
+        <result property="operateStaffName"    column="operate_staff_name"    />
+        <result property="operationType"    column="operation_type"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectExpOperateLogVo">
+        select log_id, exp_id, exp_name, operate_staff_id, operate_staff_name, operation_type, create_time
+        from exp_operate_log
+    </sql>
+
+    <select id="selectExpOperateLogList" parameterType="ExpOperateLog" resultMap="ExpOperateLogResult">
+        <include refid="selectExpOperateLogVo"/>
+        <where>
+            <if test="expId != null "> and exp_id = #{expId}</if>
+            <if test="expName != null  and expName != ''"> and exp_name like concat('%', #{expName}, '%')</if>
+            <if test="operateStaffId != null "> and operate_staff_id = #{operateStaffId}</if>
+            <if test="operateStaffName != null  and operateStaffName != ''"> and operate_staff_name like concat('%', #{operateStaffName}, '%')</if>
+            <if test="operationType != null "> and operation_type = #{operationType}</if>
+        </where>
+    </select>
+
+    <insert id="insertExpOperateLog">
+        insert into exp_operate_log(exp_id, exp_name, operate_staff_id, operate_staff_name, operation_type, create_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.expId},#{item.expName},#{item.createStaffId},#{item.createStaffName},0,sysdate())
+        </foreach>
+    </insert>
+
+    <update id="recoverExpOperateLog">
+        update exp_operate_log set operation_type = 1 where log_id IN
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item.logId}
+        </foreach>
+    </update>
+
+    <delete id="deleteExpOperateLogById">
+        delete from exp_operate_log where log_id = #{logId}
+    </delete>
+
+    <delete id="cleanExpOperateLog">
+        delete from exp_operate_log
+    </delete>
+
+</mapper>

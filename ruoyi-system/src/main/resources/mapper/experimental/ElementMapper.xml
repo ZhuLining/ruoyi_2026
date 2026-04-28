@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.experimental.ElementMapper">
+
+    <resultMap type="ExpElementDto" id="ElemResult">
+        <id     property="eleId"       column="ele_id"      />
+        <result property="eleType"     column="ele_type"    />
+        <result property="eleName"     column="ele_name"    />
+        <result property="eleCode"     column="ele_code"    />
+        <result property="eleDefaultValue"     column="ele_default_value"    />
+        <result property="orderNum"       column="order_num"      />
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+
+    <sql id="selectEleTableVo">
+        select ele_id, ele_name, ele_code, ele_default_value, order_num, catalog_id, state,
+               create_by, create_time, update_by, update_time, remark, ele_type
+        from ele_table
+    </sql>
+
+    <select id="queryList" parameterType="ExpElementDto" resultMap="ElemResult">
+        <include refid="selectEleTableVo"/>
+        <where>
+            state = '10A'
+            <if test="eleName != null  and eleName != ''"> and ele_name like concat('%', #{eleName}, '%')</if>
+            <if test="eleCode != null  and eleCode != ''"> and ele_code = #{eleCode}</if>
+            <if test="catalogId != null "> and catalog_id = #{catalogId}</if>
+        </where>
+        order by order_num
+    </select>
+
+    <insert id="insertData" parameterType="ExpElementDto" useGeneratedKeys="true" keyProperty="eleId">
+        insert into ele_table(
+        <if test="catalogId != null and catalogId != ''">catalog_id,</if>
+        <if test="eleName != null and eleName != ''">ele_name,</if>
+        <if test="eleCode != null and eleCode != ''">ele_code,</if>
+        <if test="eleType != null and eleType != ''">ele_type,</if>
+        <if test="eleDefaultValue != null and eleDefaultValue != ''">ele_default_value,</if>
+        <if test="orderNum != null and orderNum != ''">order_num,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="userId != null and userId != ''">user_id,</if>
+        <if test="deptId != null and deptId != ''">dept_id,</if>
+        create_time
+        )values(
+        <if test="catalogId != null and catalogId != ''">#{catalogId},</if>
+        <if test="eleName != null and eleName != ''">#{eleName},</if>
+        <if test="eleCode != null and eleCode != ''">#{eleCode},</if>
+        <if test="eleType != null and eleType != ''">#{eleType},</if>
+        <if test="eleDefaultValue != null and eleDefaultValue != ''">#{eleDefaultValue},</if>
+        <if test="orderNum != null">#{orderNum},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="deptId != null and deptId != ''">#{deptId},</if>
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateElem" parameterType="ExpElementDto">
+        update ele_table
+        <set>
+            <if test="eleName != null and eleName != ''">ele_name = #{eleName},</if>
+            <if test="eleCode != null and eleCode != ''">ele_code = #{eleCode},</if>
+            <if test="eleType != null and eleType != ''">ele_type = #{eleType},</if>
+            <if test="eleDefaultValue != null and eleDefaultValue != ''">ele_default_value = #{eleDefaultValue},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where ele_id = #{eleId}
+    </update>
+
+    <delete id="deleteElemByIds" parameterType="Long">
+        update ele_table set state = '10P' where ele_id in
+        <foreach collection="array" item="eleId" open="(" separator="," close=")">
+            #{eleId}
+        </foreach>
+    </delete>
+
+</mapper>

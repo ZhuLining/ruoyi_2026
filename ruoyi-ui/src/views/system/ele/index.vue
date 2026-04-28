@@ -5,7 +5,7 @@
       <el-col :span="5" :xs="24">
         <div class="head-container">
           <div class="tree-title">
-            <span>要素管理</span>
+            <span>目录</span>
             <span class="tree-tools">
               <el-button
                 type="text"

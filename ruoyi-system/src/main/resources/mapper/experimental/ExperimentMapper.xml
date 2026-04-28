@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.experimental.ExperimentMapper">
+
+    <resultMap type="ExperimentDto" id="ExpResult">
+        <id     property="expId"       column="exp_id"      />
+        <result property="expName"     column="exp_name"    />
+        <result property="expCode"     column="exp_code"    />
+        <result property="expState"     column="exp_state"    />
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="createStaffId"     column="create_staff_id"    />
+        <result property="createStaffName"     column="create_staff_name"    />
+        <result property="createTime"     column="create_time"    />
+        <result property="updateStaffId"     column="update_staff_id"    />
+        <result property="updateStaffName"     column="update_staff_name"    />
+        <result property="updateTime"     column="update_time"    />
+        <result property="checkStaffId"     column="check_staff_id"    />
+        <result property="checkStaffName"     column="check_staff_name"    />
+        <result property="checkTime"     column="check_time"    />
+        <result property="expStatus"     column="exp_status"    />
+        <result property="checkRemark"     column="check_remark"    />
+        <result property="planStartTime"     column="plan_start_time"    />
+        <result property="planEndTime"     column="plan_end_time"    />
+        <result property="finishDate"     column="finish_date"    />
+    </resultMap>
+
+    <resultMap type="ExpStep" id="ExpStepResult">
+        <result property="expId"     column="exp_id"    />
+        <result property="expName"     column="exp_name"    />
+        <result property="stepId"     column="step_id"    />
+        <result property="stepName"     column="step_name"    />
+        <result property="stepCode"     column="step_code"    />
+        <result property="stepResult"     column="step_result"    />
+        <result property="stepBriefEle"   column="step_brief_ele"    />
+        <result property="createStaffName"   column="create_staff_name"    />
+    </resultMap>
+
+    <resultMap type="ExpBaseDto" id="ExpBaseResult">
+        <id     property="expId"       column="exp_id"      />
+        <result property="expName"     column="exp_name"    />
+        <result property="expCode"     column="exp_code"    />
+        <result property="planStartTime"     column="plan_start_time"    />
+        <result property="planEndTime"     column="plan_end_time"    />
+        <result property="remark"      column="remark"    />
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="catalogName"     column="catalog_name"    />
+        <result property="catalogCode"     column="catalog_code"    />
+        <result property="parentId"        column="parent_id"    />
+        <result property="parentName"      column="parent_name"    />
+        <result property="eleId"     column="ele_id"    />
+        <result property="eleName"     column="ele_name"    />
+        <result property="eleCode"     column="ele_code"    />
+        <result property="eleType"     column="ele_type"    />
+        <result property="stepId"     column="step_id"    />
+        <result property="stepName"     column="step_name"    />
+        <result property="stepCode"     column="step_code"    />
+        <result property="finishDate"     column="finish_date"    />
+        <result property="result"     column="result"    />
+    </resultMap>
+
+    <resultMap type="ExpBaseDto" id="ExpEleResult">
+        <id     property="expEleId"  column="exp_ele_id"      />
+        <result property="expId"     column="exp_id"    />
+        <result property="expCode"     column="exp_code"    />
+        <result property="expName"     column="exp_name"    />
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="catalogName"     column="catalog_name"    />
+        <result property="catalogCode"     column="catalog_code"    />
+        <result property="eleId"       column="ele_id"    />
+        <result property="eleName"     column="ele_name"    />
+        <result property="eleCode"     column="ele_code"    />
+        <result property="eleType"     column="ele_type"    />
+        <result property="eleValue"     column="ele_value"    />
+        <result property="remark"      column="remark"    />
+    </resultMap>
+
+    <resultMap type="ExpAssetsDto" id="ExpAssResult">
+        <id     property="expAssetsId"  column="exp_assets_id"      />
+        <result property="assetsId"     column="assets_id"    />
+        <result property="assetsName"     column="assets_name"    />
+        <result property="assetsType"       column="assets_type"    />
+        <result property="expAssetsNumber"  column="exp_assets_number"    />
+        <result property="assetsCatalogId"    column="assets_catalog_id"    />
+        <result property="assetsCatalogName"     column="assets_catalog_name" />
+    </resultMap>
+
+    <resultMap type="SysFileInfo" id="SysFileInfoResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+    </resultMap>
+
+    <resultMap type="ExpElementDto" id="EleResult">
+        <result property="catalogId"     column="catalog_id"    />
+        <result property="catalogName"     column="catalog_name"    />
+        <result property="catalogCode"     column="catalog_code"    />
+        <result property="parentId"        column="parent_id"    />
+        <result property="parentName"      column="parent_name"    />
+        <result property="eleId"       column="ele_id"    />
+        <result property="eleName"     column="ele_name"    />
+        <result property="eleCode"     column="ele_code"    />
+        <result property="eleType"     column="ele_type"    />
+    </resultMap>
+
+    <sql id="selectSysFileInfoVo">
+        select file_id, file_name, file_path from sys_file_info
+    </sql>
+
+    <select id="queryUnfinishList" parameterType="ExperimentDto"  resultMap="ExpResult">
+        select e.exp_id, e.exp_name, e.exp_code, e.exp_status, e.plan_start_time, e.plan_end_time,
+        e.create_time, e.create_staff_id, e.create_staff_name, e.update_staff_id, e.update_staff_name, e.update_time,
+        e.check_staff_id, e.check_staff_name, e.check_time, e.check_remark
+        from exp_table e
+        left join sys_dept d on e.create_dept_id = d.dept_id
+        left join sys_user u on e.create_staff_id = u.user_id
+        where e.exp_state = '10A' and e.exp_status in (1,2,3) and e.exp_finish_status = 1
+        <if test="expName != null and expName != ''">
+            AND e.exp_name like concat('%', #{expName}, '%')
+        </if>
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by e.create_time desc
+    </select>
+
+    <select id="queryFinishList" parameterType="ExperimentDto" resultMap="ExpResult">
+        select e.exp_id, e.exp_name, e.exp_status,
+        e.create_time, e.create_staff_id, e.create_staff_name, e.plan_start_time, e.plan_end_time, ets.finish_date
+        from exp_table e
+        left join exp_task_finish ets on ets.exp_id = e.exp_id
+        left join sys_dept d on e.create_dept_id = d.dept_id
+        left join sys_user u on e.create_staff_id = u.user_id
+        where e.exp_state = '10A' and e.exp_finish_status = 2
+        <if test="expName != null and expName != ''">
+            AND e.exp_name like concat('%', #{expName}, '%')
+        </if>
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by ets.finish_date desc
+    </select>
+
+    <select id="queryList"  parameterType="ExperimentDto"  resultMap="ExpResult">
+        select e.exp_id, e.exp_name, e.exp_code, e.exp_status, e.check_remark,
+        e.create_time, e.create_staff_id, e.create_staff_name, e.plan_start_time, e.plan_end_time
+        from exp_table e
+        left join sys_dept d on e.create_dept_id = d.dept_id
+        left join sys_user u on e.create_staff_id = u.user_id
+        where e.exp_state = '10A'
+        <if test="expStatus != null">
+            AND e.exp_status = #{expStatus}
+        </if>
+        <if test="expName != null and expName != ''">
+            AND e.exp_name like concat('%', #{expName}, '%')
+        </if>
+        <if test="expFinishStatus != null">
+            AND e.exp_finish_status = #{expFinishStatus}
+        </if>
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(e.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order by e.create_time desc
+    </select>
+
+    <select id="queryExpList" parameterType="ExpBaseDto" resultMap="ExpBaseResult">
+        select et.exp_id,
+        et.exp_name,
+        et.exp_code,
+        ec.catalog_id,
+        ec.catalog_name,
+        ec.catalog_code,
+        elet.ele_id,
+        elet.ele_name,
+        elet.ele_code,
+        elet.ele_type
+        from exp_table et
+        left join ele_catalog ec on et.catalog_id = ec.catalog_id
+        left join ele_table elet on elet.catalog_id = ec.catalog_id
+        where et.exp_state = '10A'
+        AND et.exp_code = 'test'
+        <!--        <if test="expCode != null and expCode != ''">-->
+        <!--            AND et.exp_code = #{expCode}-->
+        <!--        </if>-->
+        order by et.exp_id;
+    </select>
+
+    <insert id="insertExp" parameterType="ExpBaseDto" useGeneratedKeys="true" keyProperty="expId">
+        insert into exp_table(
+        <if test="expName != null and expName != ''">exp_name,</if>
+        <if test="expCode != null and expCode != ''">exp_code,</if>
+        <if test="planStartTime != null">plan_start_time,</if>
+        <if test="planEndTime != null">plan_end_time,</if>
+        <if test="createStaffId != null">create_staff_id,</if>
+        <if test="createStaffName != null and createStaffName != ''">create_staff_name,</if>
+        <if test="createDeptId != null">create_dept_id,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="expName != null and expName != ''">#{expName},</if>
+        <if test="expCode != null and expCode != ''">#{expCode},</if>
+        <if test="planStartTime != null">#{planStartTime},</if>
+        <if test="planEndTime != null">#{planEndTime},</if>
+        <if test="createStaffId != null">#{createStaffId},</if>
+        <if test="createStaffName != null and createStaffName != ''">#{createStaffName},</if>
+        <if test="createDeptId != null">#{createDeptId},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpEle" parameterType="ExpBaseDto" useGeneratedKeys="true" keyProperty="expEleId">
+        insert into exp_ele(
+        <if test="expId != null and expId != ''">exp_id,</if>
+        <if test="stepId != null and stepId != ''">step_id,</if>
+        <if test="catalogId != null and catalogId != ''">catalog_id,</if>
+        create_time
+        )values(
+        <if test="expId != null and expId != ''">#{expId},</if>
+        <if test="stepId != null and stepId != ''">#{stepId},</if>
+        <if test="catalogId != null and catalogId != ''">#{catalogId},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpStep" parameterType="ExpBaseDto" useGeneratedKeys="true" keyProperty="stepId">
+        insert into exp_step(
+        <if test="expId != null and expId != ''">exp_id,</if>
+        <if test="stepCode != null and stepCode != ''">step_code,</if>
+        <if test="stepName != null and stepName != ''">step_name,</if>
+        create_time
+        )values(
+        <if test="expId != null and expId != ''">#{expId},</if>
+        <if test="stepCode != null and stepCode != ''">#{stepCode},</if>
+        <if test="stepName != null and stepName != ''">#{stepName},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="insertExpAssets" parameterType="ExpAssetsDto">
+        insert into exp_exp_assets(
+        <if test="expId != null and expId != ''">exp_id,</if>
+        <if test="assetsId != null and assetsId != ''">assets_id,</if>
+        <if test="stepId != null and stepId != ''">step_id,</if>
+        <if test="expAssetsNumber != null and expAssetsNumber != ''">exp_assets_number</if>
+        )values(
+        <if test="expId != null and expId != ''">#{expId},</if>
+        <if test="assetsId != null and assetsId != ''">#{assetsId},</if>
+        <if test="stepId != null and stepId != ''">#{stepId},</if>
+        <if test="expAssetsNumber != null and expAssetsNumber != ''">#{expAssetsNumber}</if>
+        )
+    </insert>
+
+    <insert id="insertExpEleData" parameterType="ExpBaseDto" useGeneratedKeys="true" keyProperty="id">
+        insert into exp_ele_data(
+        <if test="expId != null and expId != ''">exp_id,</if>
+        <if test="expEleId != null and expEleId != ''">exp_ele_id,</if>
+        <if test="eleId != null and eleId != ''">ele_id,</if>
+        <if test="eleValue != null and eleValue != ''">ele_value,</if>
+        create_time
+        )values(
+        <if test="expId != null and expId != ''">#{expId},</if>
+        <if test="expEleId != null and expEleId != ''">#{expEleId},</if>
+        <if test="eleId != null and eleId != ''">#{eleId},</if>
+        <if test="eleValue != null and eleValue != ''">#{eleValue},</if>
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateExp" parameterType="ExpBaseDto">
+        update exp_table
+        <set>
+            <if test="expName != null and expName != ''">exp_name = #{expName},</if>
+            <if test="expCode != null and expCode != ''">exp_code = #{expCode},</if>
+            <if test="planStartTime != null">plan_start_time = #{planStartTime},</if>
+            <if test="planEndTime != null">plan_end_time = #{planEndTime},</if>
+            <if test="updateStaffId != null">update_staff_id = #{updateStaffId},</if>
+            <if test="updateStaffName != null and updateStaffName != ''">update_staff_name = #{updateStaffName},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            exp_status = 0,
+            check_remark = null,
+            update_time = sysdate()
+        </set>
+        where exp_id = #{expId}
+    </update>
+
+    <select id="selectExpById" parameterType="Long" resultMap="ExpEleResult">
+        select ee.exp_ele_id, ee.catalog_id,
+               ec.catalog_code,ec.catalog_name,
+               eed.ele_id, eed.ele_value,
+               elt.ele_code,elt.ele_name,elt.ele_type,elt.remark
+        from exp_ele ee
+            left join exp_ele_data eed on ee.exp_ele_id = eed.exp_ele_id
+            left join ele_catalog ec on ee.catalog_id = ec.catalog_id
+            left join ele_table elt on eed.ele_id = elt.ele_id
+        where ee.step_id = #{stepId} and ee.state = '10A'
+        order by ee.exp_ele_id;
+    </select>
+
+    <select id="queryExpById" parameterType="Long" resultMap="ExpBaseResult">
+        select et.exp_id, et.exp_code, et.exp_name, et.plan_start_time, et.plan_end_time, et.remark
+        from exp_table et
+        where et.exp_id = #{expId}
+    </select>
+
+    <select id="queryStepById" parameterType="Long" resultMap="ExpStepResult">
+        select es.step_id, es.step_name, es.step_code
+        from exp_step es
+        where es.exp_id = #{expId}
+    </select>
+
+    <select id="selectExpAssById" parameterType="Long" resultMap="ExpAssResult">
+        select eea.exp_assets_id, eea.exp_assets_number, eea.assets_id,
+               ea.assets_name, ea.assets_type, ea.assets_catalog_name,ea.assets_catalog_id
+        from exp_exp_assets eea
+                 left join exp_assets ea on ea.assets_id = eea.assets_id
+        where eea.step_id = #{stepId};
+    </select>
+
+    <update id="checkExp" parameterType="ExperimentDto">
+        update exp_table
+        <set>
+            <if test="expStatus != null">exp_status = #{expStatus},</if>
+            <if test="checkStaffId != null">check_staff_id = #{checkStaffId},</if>
+            <if test="checkStaffName != null and checkStaffName != ''">check_staff_name = #{checkStaffName},</if>
+            <if test="checkRemark != null and checkRemark != ''">check_remark = #{checkRemark},</if>
+            check_time = sysdate()
+        </set>
+        where exp_id in
+        <foreach collection="expIdList" item="expId" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </update>
+
+    <update id="updateExpFinish" parameterType="ExpBaseDto">
+        update exp_table
+        <set>
+            <if test="expFinishStatus != null">exp_finish_status = #{expFinishStatus}</if>
+        </set>
+        where exp_id = #{expId}
+    </update>
+
+    <delete id="deleteExpTaskFinish" parameterType="Long">
+        delete from exp_task_finish where exp_id = #{expId}
+    </delete>
+
+    <update id="updateExpStep" parameterType="ExpBaseDto">
+        update exp_step
+        <set>
+            <if test="stepResult != null ">step_result = #{stepResult},</if>
+            <if test="stepBriefEle != null ">step_brief_ele = #{stepBriefEle}</if>
+        </set>
+        where step_id = #{stepId}
+    </update>
+
+    <insert id="insertExpTaskFinish" parameterType="ExpBaseDto">
+        insert into exp_task_finish(
+        <if test="expId != null">exp_id,</if>
+        <if test="createStaffId != null">staff_id,</if>
+        <if test="createStaffName != null and createStaffName != ''">staff_name,</if>
+        <if test="createDeptId != null">org_id,</if>
+        <if test="result != null and result != ''">result,</if>
+        finish_date
+        )values(
+        <if test="expId != null">#{expId},</if>
+        <if test="createStaffId != null">#{createStaffId},</if>
+        <if test="createStaffName != null and createStaffName != ''">#{createStaffName},</if>
+        <if test="createDeptId != null">#{createDeptId},</if>
+        <if test="result != null and result != ''">#{result},</if>
+        sysdate()
+        )
+    </insert>
+
+    <select id="queryDetailById" parameterType="Long" resultMap="ExpBaseResult">
+        select et.exp_id, et.exp_code, et.exp_name,
+               et.plan_start_time, et.plan_end_time,
+               etf.finish_date, etf.result,
+               et.remark
+        from exp_table et
+                 left join exp_task_finish etf on etf.exp_id = et.exp_id
+        where et.exp_id = #{expId}
+    </select>
+
+    <select id="queryStepDetailById" parameterType="Long" resultMap="ExpStepResult">
+        select es.step_id, es.step_name, es.step_code, es.step_result, es.step_brief_ele
+        from exp_step es
+        where es.exp_id = #{expId}
+    </select>
+
+    <delete id="deleteExpEle" parameterType="String">
+        delete from exp_ele where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpEleData" parameterType="String">
+        delete from exp_ele_data where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpStep" parameterType="String">
+        delete from exp_step where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpAssets" parameterType="String">
+        delete from exp_exp_assets where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpTableByExpIds" parameterType="String">
+        delete from exp_table where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </delete>
+
+    <update id="logicalDeleteExpTable">
+        update exp_table set exp_state = '10P'
+        where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </update>
+
+    <update id="logicalRecoverExpTable">
+        update exp_table set exp_state = '10A'
+        where exp_id in
+        <foreach item="expId" collection="list" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </update>
+
+    <select id="queryStepList" parameterType="Long" resultMap="ExpStepResult">
+        select es.exp_id, et.exp_name, et.create_staff_name,
+               es.step_id, es.step_name, es.step_code, es.step_result, es.step_brief_ele
+        from exp_step es
+        left join exp_table et on et.exp_id = es.exp_id
+        where es.exp_id IN
+        <foreach item="expId" collection="array" open="(" separator="," close=")">
+            #{expId}
+        </foreach>
+    </select>
+
+    <select id="selectSysFileInfoList" parameterType="Long" resultMap="SysFileInfoResult">
+        <include refid="selectSysFileInfoVo"/>
+        where exp_id = #{expId}
+    </select>
+
+    <insert id="batchSysFileInfo">
+        insert into sys_file_info(file_name, file_path, exp_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.fileName},#{item.filePath},#{item.expId})
+        </foreach>
+    </insert>
+
+</mapper>
