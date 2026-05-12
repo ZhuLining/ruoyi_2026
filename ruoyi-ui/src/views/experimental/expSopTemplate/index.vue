@@ -8,8 +8,8 @@
           <div class="tree-header">
             <span class="tree-title">目录</span>
             <div class="tree-actions">
-              <el-button type="text" icon="el-icon-plus" title="新增" @click="handleAddCatalog" />
-              <el-button type="text" icon="el-icon-edit" title="编辑" @click="handleEditCatalog" />
+              <el-button type="text" icon="el-icon-plus" title="新增" @click="handleAddCatalog" v-hasPermi="['exp:expSopTemplate:catalogAdd']"/>
+              <el-button type="text" icon="el-icon-edit" title="编辑" @click="handleEditCatalog" v-hasPermi="['exp:expSopTemplate:catalogEdit']"/>
               <el-button type="text" icon="el-icon-refresh" title="刷新" @click="getCatalogTree" />
             </div>
           </div>

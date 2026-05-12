@@ -46,6 +46,7 @@
       <el-table-column label="操作时间" align="center" prop="createTime" width="180" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">详情</el-button>
           <el-button size="mini" type="text" icon="el-icon-refresh-left" @click="handleRecover(scope.row)"
             v-if="scope.row.operationType === 0"
             v-hasPermi="['exp:expLogManage:restore']">还原</el-button>
@@ -57,14 +58,18 @@
 
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize" @pagination="getList" />
+
+    <descriptions-dialog ref="descDialog" />
   </div>
 </template>
 
 <script>
 import { listExpLog, delExpLog, cleanExpLog, recoverExpLog } from '@/api/experimental/expLog'
+import DescriptionsDialog from '../expManage/components/descriptions'
 
 export default {
   name: 'ExpLogManage',
+  components: { DescriptionsDialog },
   data() {
     return {
       loading: false,
@@ -104,6 +109,9 @@ export default {
     },
     handleSelectionChange(selection) {
       this.selection = selection
+    },
+    handleDetail(row) {
+      this.$refs.descDialog.open({ expId: row.expId })
     },
     handleRecover(row) {
       this.$confirm('是否确认还原实验 "' + row.expName + '"？', '提示', { type: 'warning' }).then(() => {

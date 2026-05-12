@@ -2,13 +2,13 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!-- 左侧目录树 -->
-      <el-col :span="6">
+      <el-col :span="5">
         <el-card class="tree-card">
           <div class="tree-header">
             <span class="tree-title">目录</span>
             <div class="tree-actions">
-              <el-button type="text" icon="el-icon-plus" title="新增" @click="handleAddCatalog" />
-              <el-button type="text" icon="el-icon-edit" title="编辑" @click="handleEditCatalog" />
+              <el-button type="text" icon="el-icon-plus" title="新增" @click="handleAddCatalog" v-hasPermi="['system:assetsCatalog:add']" />
+              <el-button type="text" icon="el-icon-edit" title="编辑" @click="handleEditCatalog" v-hasPermi="['system:assetsCatalog:edit']" />
               <el-button type="text" icon="el-icon-refresh" title="刷新" @click="getCatalogTree" />
             </div>
           </div>
@@ -37,7 +37,7 @@
       </el-col>
 
       <!-- 右侧资产列表 -->
-      <el-col :span="18">
+      <el-col :span="19">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
           <el-form-item label="资产名称" prop="assetsName">
             <el-input

@@ -28,9 +28,11 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
           <el-form-item label="备注">
-            <el-input v-model="form.remark" placeholder="请输入备注" />
+            <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入备注" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -282,22 +284,20 @@ export default {
       }
     }
   },
-  created() {
-    this.getEleCatalogTree()
-    this.getAssetsCatalogTree()
-  },
   methods: {
     getEleCatalogTree() {
       treeEleCatalog().then(response => {
         this.eleCatalogTree = response.data || []
-      })
+      }).catch(() => {})
     },
     getAssetsCatalogTree() {
       assetsCatalogTree().then(response => {
         this.assetsCatalogTree = response.data || []
-      })
+      }).catch(() => {})
     },
     open(row) {
+      this.getEleCatalogTree()
+      this.getAssetsCatalogTree()
       this.reset()
       if (row && row.expId) {
         this.title = '编辑实验'

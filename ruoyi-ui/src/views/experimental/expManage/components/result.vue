@@ -253,7 +253,7 @@ export default {
       this.form.uploadList = this.form.uploadList.filter(item => item.filePath !== serverPath)
     },
     handleDownload(file) {
-      window.open(process.env.VUE_APP_BASE_API + '/common/download/resource?resource=' + encodeURIComponent(file.filePath))
+      this.$download.resource(file.filePath)
     },
     submitForm() {
       const submitData = {

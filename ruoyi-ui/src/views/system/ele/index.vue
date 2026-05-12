@@ -286,7 +286,7 @@ export default {
         this.eleTableList = response.rows
         this.total = response.total
         this.loading = false
-      })
+      }).catch(() => { this.loading = false })
     },
     /** 查询目录树结构 */
     getCatalogTree() {
@@ -296,7 +296,7 @@ export default {
         this.catalogTreeOptionsForSelect = [
           { catalogId: 0, catalogName: '根目录', children: response.data }
         ]
-      })
+      }).catch(() => {})
     },
     // 筛选节点
     filterNode(value, data) {

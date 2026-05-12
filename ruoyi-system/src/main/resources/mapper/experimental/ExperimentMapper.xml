@@ -58,6 +58,7 @@
         <result property="stepCode"     column="step_code"    />
         <result property="finishDate"     column="finish_date"    />
         <result property="result"     column="result"    />
+        <result property="createStaffName"   column="create_staff_name"    />
     </resultMap>
 
     <resultMap type="ExpBaseDto" id="ExpEleResult">
@@ -119,6 +120,15 @@
         <if test="expName != null and expName != ''">
             AND e.exp_name like concat('%', #{expName}, '%')
         </if>
+        <if test="expCode != null and expCode != ''">
+            AND e.exp_code like concat('%', #{expCode}, '%')
+        </if>
+        <if test="params.planBeginTime != null and params.planBeginTime != ''">
+            AND date_format(e.plan_start_time,'%y%m%d') &gt;= date_format(#{params.planBeginTime},'%y%m%d')
+        </if>
+        <if test="params.planEndTime != null and params.planEndTime != ''">
+            AND date_format(e.plan_end_time,'%y%m%d') &lt;= date_format(#{params.planEndTime},'%y%m%d')
+        </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
         </if>
@@ -131,7 +141,7 @@
     </select>
 
     <select id="queryFinishList" parameterType="ExperimentDto" resultMap="ExpResult">
-        select e.exp_id, e.exp_name, e.exp_status,
+        select e.exp_id, e.exp_name, e.exp_code, e.exp_status,
         e.create_time, e.create_staff_id, e.create_staff_name, e.plan_start_time, e.plan_end_time, ets.finish_date
         from exp_table e
         left join exp_task_finish ets on ets.exp_id = e.exp_id
@@ -140,6 +150,15 @@
         where e.exp_state = '10A' and e.exp_finish_status = 2
         <if test="expName != null and expName != ''">
             AND e.exp_name like concat('%', #{expName}, '%')
+        </if>
+        <if test="expCode != null and expCode != ''">
+            AND e.exp_code like concat('%', #{expCode}, '%')
+        </if>
+        <if test="params.planBeginTime != null and params.planBeginTime != ''">
+            AND date_format(e.plan_start_time,'%y%m%d') &gt;= date_format(#{params.planBeginTime},'%y%m%d')
+        </if>
+        <if test="params.planEndTime != null and params.planEndTime != ''">
+            AND date_format(e.plan_end_time,'%y%m%d') &lt;= date_format(#{params.planEndTime},'%y%m%d')
         </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
@@ -165,8 +184,17 @@
         <if test="expName != null and expName != ''">
             AND e.exp_name like concat('%', #{expName}, '%')
         </if>
+        <if test="expCode != null and expCode != ''">
+            AND e.exp_code like concat('%', #{expCode}, '%')
+        </if>
         <if test="expFinishStatus != null">
             AND e.exp_finish_status = #{expFinishStatus}
+        </if>
+        <if test="params.planBeginTime != null and params.planBeginTime != ''">
+            AND date_format(e.plan_start_time,'%y%m%d') &gt;= date_format(#{params.planBeginTime},'%y%m%d')
+        </if>
+        <if test="params.planEndTime != null and params.planEndTime != ''">
+            AND date_format(e.plan_end_time,'%y%m%d') &lt;= date_format(#{params.planEndTime},'%y%m%d')
         </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
@@ -391,7 +419,7 @@
         select et.exp_id, et.exp_code, et.exp_name,
                et.plan_start_time, et.plan_end_time,
                etf.finish_date, etf.result,
-               et.remark
+               et.create_staff_name, et.remark
         from exp_table et
                  left join exp_task_finish etf on etf.exp_id = et.exp_id
         where et.exp_id = #{expId}
@@ -454,6 +482,41 @@
         </foreach>
     </update>
 
+    <!-- 实验统计：待审核、待处理、已完成 -->
+    <select id="selectExpStatistics" parameterType="ExperimentDto" resultType="java.util.HashMap">
+        select
+            (select count(*) from exp_table e
+             left join sys_dept d on e.create_dept_id = d.dept_id
+             left join sys_user u on e.create_staff_id = u.user_id
+             where e.exp_state = '10A' and e.exp_status = 0 and e.exp_finish_status = 1
+             ${params.dataScope}) as tobeReviewed,
+            (select count(*) from exp_table e
+             left join sys_dept d on e.create_dept_id = d.dept_id
+             left join sys_user u on e.create_staff_id = u.user_id
+             where e.exp_state = '10A' and e.exp_status in (1,2,3) and e.exp_finish_status = 1
+             ${params.dataScope}) as unFinish,
+            (select count(*) from exp_table e
+             left join sys_dept d on e.create_dept_id = d.dept_id
+             left join sys_user u on e.create_staff_id = u.user_id
+             where e.exp_state = '10A' and e.exp_finish_status = 2
+             ${params.dataScope}) as finished
+    </select>
+
+    <!-- 按部门统计实验数量 -->
+    <select id="selectExpDeptStatistics" parameterType="ExperimentDto" resultType="java.util.HashMap">
+        select d.dept_name as deptName,
+            sum(case when e.exp_status = 0 and e.exp_finish_status = 1 then 1 else 0 end) as tobeReviewed,
+            sum(case when e.exp_status in (1,2,3) and e.exp_finish_status = 1 then 1 else 0 end) as unFinish,
+            sum(case when e.exp_finish_status = 2 then 1 else 0 end) as finished
+        from exp_table e
+        left join sys_dept d on e.create_dept_id = d.dept_id
+        left join sys_user u on e.create_staff_id = u.user_id
+        where e.exp_state = '10A'
+        ${params.dataScope}
+        group by d.dept_id, d.dept_name
+        order by d.dept_id
+    </select>
+
     <select id="queryStepList" parameterType="Long" resultMap="ExpStepResult">
         select es.exp_id, et.exp_name, et.create_staff_name,
                es.step_id, es.step_name, es.step_code, es.step_result, es.step_brief_ele
@@ -476,5 +539,22 @@
             (#{item.fileName},#{item.filePath},#{item.expId})
         </foreach>
     </insert>
+
+    <!-- 查询已删除的实验（exp_state='10P'） -->
+    <select id="selectDeletedExpList" resultMap="ExpResult">
+        select exp_id, exp_name, exp_code
+        from exp_table
+        where exp_state = '10P'
+    </select>
+
+    <!-- 删除实验关联的文件记录 -->
+    <delete id="deleteSysFileInfoByExpId">
+        delete from sys_file_info where exp_id = #{expId}
+    </delete>
+
+    <!-- 清空实验操作日志 -->
+    <delete id="cleanExpOperateLog">
+        delete from exp_operate_log
+    </delete>
 
 </mapper>

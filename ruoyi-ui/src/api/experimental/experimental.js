@@ -106,3 +106,19 @@ export function exportExp(data) {
     responseType: 'blob'
   })
 }
+
+// 实验统计
+export function expStatistics() {
+  return request({
+    url: '/experimental/expManage/statistics',
+    method: 'get'
+  })
+}
+
+// 按部门统计实验数量
+export function expDeptStatistics() {
+  return request({
+    url: '/experimental/expManage/statisticsByDept',
+    method: 'get'
+  })
+}

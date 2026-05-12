@@ -72,5 +72,15 @@ public interface ExperimentMapper {
     public List<SysFileInfo> selectSysFileInfoList(Long var1);
 
     public int batchSysFileInfo(List<SysFileInfo> var1);
+
+    public List<ExperimentDto> selectDeletedExpList();
+
+    public java.util.Map<String, Object> selectExpStatistics(ExperimentDto var1);
+
+    public java.util.List<java.util.Map<String, Object>> selectExpDeptStatistics(ExperimentDto var1);
+
+    public int deleteSysFileInfoByExpId(Long var1);
+
+    public int cleanExpOperateLog();
 }
 

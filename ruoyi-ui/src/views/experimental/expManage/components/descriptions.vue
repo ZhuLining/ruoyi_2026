@@ -85,7 +85,8 @@
 
 <script>
 import { getExpDetail } from '@/api/experimental/experimental'
-import request from '@/utils/request'
+import axios from 'axios'
+import { getToken } from '@/utils/auth'
 
 export default {
   name: 'DescriptionsDialog',
@@ -151,24 +152,26 @@ export default {
       return ['.png', '.jpg', '.jpeg'].includes(ext)
     },
     handlePreview(file) {
-      const url = '/common/download/resource?resource=' + encodeURIComponent(file.filePath)
-      if (this.isImage(file.fileName)) {
-        request({
-          url: url,
-          method: 'get',
-          responseType: 'blob'
-        }).then(blob => {
-          this.previewUrl = URL.createObjectURL(blob)
-          this.previewVisible = true
-        }).catch(() => {
-          this.$message.error('预览失败')
-        })
-      } else {
-        window.open(process.env.VUE_APP_BASE_API + url, '_blank')
+      if (!this.isImage(file.fileName)) {
+        this.$download.resource(file.filePath)
+        return
       }
+      const url = process.env.VUE_APP_BASE_API + '/common/download/resource?resource=' + encodeURIComponent(file.filePath)
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      }).then(res => {
+        const blob = new Blob([res.data])
+        this.previewUrl = URL.createObjectURL(blob)
+        this.previewVisible = true
+      }).catch(() => {
+        this.$message.error('预览失败')
+      })
     },
     handleDownload(file) {
-      window.open(process.env.VUE_APP_BASE_API + '/common/download/resource?resource=' + encodeURIComponent(file.filePath))
+      this.$download.resource(file.filePath)
     }
   }
 }

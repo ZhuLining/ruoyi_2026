@@ -102,7 +102,10 @@ service.interceptors.response.use(res => {
       Message({ message: msg, type: 'warning' })
       return Promise.reject('error')
     } else if (code !== 200) {
-      Notification.error({ title: msg })
+      const isSilent = res.config && res.config.headers && res.config.headers.silent === true
+      if (!isSilent) {
+        Notification.error({ title: msg })
+      }
       return Promise.reject('error')
     } else {
       return res.data

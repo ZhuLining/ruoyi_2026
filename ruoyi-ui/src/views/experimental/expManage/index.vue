@@ -1,24 +1,11 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['exp:expManage:add']"
-        >新增</el-button>
-      </el-col>
-    </el-row>
-
     <el-tabs v-model="activeName" @tab-click="handleTabClick">
-      <el-tab-pane label="待审核" name="tobeReviewed">
-        <TobeReviewed ref="tobeReviewed" />
+      <el-tab-pane v-if="hasCheckPerm" label="待审核" name="tobeReviewed">
+        <TobeReviewed ref="tobeReviewed" @add="handleAdd" />
       </el-tab-pane>
       <el-tab-pane label="待处理" name="unFinish">
-        <UnFinishList ref="unFinish" @edit="handleEdit" />
+        <UnFinishList ref="unFinish" @add="handleAdd" @edit="handleEdit" />
       </el-tab-pane>
       <el-tab-pane label="已完成" name="finish">
         <FinishList ref="finish" />
@@ -44,9 +31,16 @@ export default {
     FinishList,
     ExpEdit
   },
+  computed: {
+    hasCheckPerm() {
+      const perms = this.$store.getters.permissions || []
+      return perms.includes('*:*:*') || perms.includes('exp:expManage:check')
+    }
+  },
   data() {
+    const perms = this.$store.getters.permissions || []
     return {
-      activeName: 'tobeReviewed'
+      activeName: perms.includes('*:*:*') || perms.includes('exp:expManage:check') ? 'tobeReviewed' : 'unFinish'
     }
   },
   methods: {
@@ -71,3 +65,39 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.app-container ::v-deep .el-tabs__header {
+  margin-bottom: 18px;
+}
+
+.app-container ::v-deep .el-tabs__nav-wrap::after {
+  height: 1px;
+  background-color: #e4e7ed;
+}
+
+.app-container ::v-deep .el-tabs__item {
+  font-size: 15px;
+  font-weight: 500;
+  color: #606266;
+  padding: 0 20px;
+  height: 42px;
+  line-height: 42px;
+  transition: all 0.3s ease;
+}
+
+.app-container ::v-deep .el-tabs__item.is-active {
+  color: #409eff;
+  font-weight: 600;
+}
+
+.app-container ::v-deep .el-tabs__active-bar {
+  height: 3px;
+  border-radius: 2px;
+  background-color: #409eff;
+}
+
+.app-container ::v-deep .el-tabs__item:hover {
+  color: #409eff;
+}
+</style>

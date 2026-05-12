@@ -46,7 +46,7 @@ public class EleCatalogController extends BaseController
     /**
      * 获取元素目录树结构
      */
-    @PreAuthorize("@ss.hasPermi('system:eleCatalog:list')")
+    @PreAuthorize("@ss.hasPermi('system:eleCatalog:query')")
     @GetMapping("/tree")
     public AjaxResult tree(EleCatalog eleCatalog)
     {

@@ -60,6 +60,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 资产目录信息
+ *
+ * @author ruoyi
+ */
 @RestController
 @RequestMapping(value={"/experimental/assets"})
 public class AssetsController
@@ -67,6 +72,7 @@ extends BaseController {
     @Autowired
     private AssetsService assetsService;
 
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:query')")
     @GetMapping(value={"/catalogList"})
     @DataScope(deptAlias="d", userAlias="u")
     public AjaxResult queryCatalogList(ExpAssetsCatalog data) {
@@ -78,6 +84,7 @@ extends BaseController {
         return this.success((Object)catalogList);
     }
 
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:query')")
     @GetMapping(value={"/catalogTree"})
     public AjaxResult queryCatalog(ExpAssetsCatalog data) {
         SysUser user = SecurityUtils.getLoginUser().getUser();
@@ -85,7 +92,7 @@ extends BaseController {
         return this.success((Object)this.assetsService.queryCatalog(data));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:catalogAdd')")
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:add')")
     @Log(title="目录信息", businessType=BusinessType.INSERT)
     @PostMapping(value={"/catalogAdd"})
     public AjaxResult catalogAdd(@Validated @RequestBody ExpAssetsCatalog catalog) {
@@ -96,7 +103,7 @@ extends BaseController {
         return this.toAjax(this.assetsService.insertCatalog(catalog));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:catalogRemove')")
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:remove')")
     @Log(title="目录信息", businessType=BusinessType.DELETE)
     @DeleteMapping(value={"/delCatalog/{catalogId}"})
     public AjaxResult delCatalog(@PathVariable Long catalogId) {
@@ -106,7 +113,7 @@ extends BaseController {
         return this.toAjax(this.assetsService.deleteCatalogById(catalogId));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:catalogEdit')")
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:edit')")
     @Log(title="目录信息", businessType=BusinessType.UPDATE)
     @PutMapping(value={"/updateCatalog"})
     public AjaxResult updateCatalog(@Validated @RequestBody ExpAssetsCatalog data) {
@@ -115,12 +122,13 @@ extends BaseController {
         return this.toAjax(this.assetsService.updateCatalog(data));
     }
 
+    @PreAuthorize(value="@ss.hasPermi('system:assetsCatalog:query')")
     @GetMapping(value={"/queryCatalogById/{catalogId}"})
     public AjaxResult queryCatalogById(@PathVariable Long catalogId) {
         return this.success((Object)this.assetsService.queryCatalogById(catalogId));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:query')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:list')")
     @GetMapping(value={"/list"})
     public TableDataInfo list(AssetsDto assets) {
         this.startPage();
@@ -128,17 +136,19 @@ extends BaseController {
         return this.getDataTable(list);
     }
 
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:list')")
     @GetMapping(value={"/allList"})
     public List<AssetsDto> getAll(AssetsDto assets) {
         return this.assetsService.selectAssetsList(assets);
     }
 
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:query')")
     @GetMapping(value={"/{assetsId}"})
     public AjaxResult getInfo(@PathVariable(value="assetsId") Long assetsId) {
         return this.success((Object)this.assetsService.selectExpAssetsByAssetsId(assetsId));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:add')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:add')")
     @Log(title="资产信息", businessType=BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody AssetsDto assets) {
@@ -149,7 +159,7 @@ extends BaseController {
         return this.toAjax(this.assetsService.insertAssets(assets));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:edit')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:edit')")
     @Log(title="资产信息", businessType=BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody AssetsDto expAssets) {
@@ -158,20 +168,21 @@ extends BaseController {
         return this.toAjax(this.assetsService.updateExpAssets(expAssets));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:remove')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:remove')")
     @Log(title="资产信息", businessType=BusinessType.DELETE)
     @DeleteMapping(value={"/{assetsIds}"})
     public AjaxResult remove(@PathVariable Long[] assetsIds) {
         return this.toAjax(this.assetsService.deleteExpAssetsByAssetsIds(assetsIds));
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:out')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:use')")
     @Log(title="资产信息", businessType=BusinessType.UPDATE)
     @PutMapping(value={"/out"})
     public AjaxResult updateCatalog(@Validated @RequestBody AssetsUseDto data) {
         return this.toAjax(this.assetsService.outAssets(data));
     }
 
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:add')")
     @PostMapping(value={"/importTemplate"})
     public void importTemplate(HttpServletResponse response) {
         ExcelUtil util = new ExcelUtil(AssetsDto.class);
@@ -179,7 +190,7 @@ extends BaseController {
     }
 
     @Log(title="资产信息", businessType=BusinessType.IMPORT)
-    @PreAuthorize(value="@ss.hasPermi('exp:property:import')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:add')")
     @PostMapping(value={"/importData"})
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
         ExcelUtil util = new ExcelUtil(AssetsDto.class);
@@ -189,7 +200,7 @@ extends BaseController {
     }
 
     @Log(title="资产信息", businessType=BusinessType.EXPORT)
-    @PreAuthorize(value="@ss.hasPermi('exp:property:export')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:list')")
     @PostMapping(value={"/export"})
     public void export(HttpServletResponse response, AssetsDto assets) {
         List list = this.assetsService.selectAssetsList(assets);
@@ -197,7 +208,7 @@ extends BaseController {
         util.exportExcel(response, list, "资产数据");
     }
 
-    @PreAuthorize(value="@ss.hasPermi('exp:property:queryList')")
+    @PreAuthorize(value="@ss.hasPermi('system:expAssets:list')")
     @GetMapping(value={"/useList"})
     public TableDataInfo list(AssetsUseDto expAssetsUse) {
         this.startPage();

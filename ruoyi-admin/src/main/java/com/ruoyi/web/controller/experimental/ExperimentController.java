@@ -29,6 +29,7 @@
  */
 package com.ruoyi.web.controller.experimental;
 
+import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -180,6 +181,20 @@ extends BaseController {
         List<List<ExpStep>> stepData = this.experimentService.selectDetail(exp);
         ExportExcel exportExcel = new ExportExcel();
         exportExcel.exportData(response, stepData);
+    }
+
+    @PreAuthorize(value="@ss.hasPermi('exp:expManage:query')")
+    @GetMapping(value={"/statistics"})
+    @DataScope(deptAlias="d", userAlias="u")
+    public AjaxResult statistics(ExperimentDto exp) {
+        return this.success((Object)this.experimentService.selectExpStatistics(exp));
+    }
+
+    @PreAuthorize(value="@ss.hasPermi('exp:expManage:query')")
+    @GetMapping(value={"/statisticsByDept"})
+    @DataScope(deptAlias="d", userAlias="u")
+    public AjaxResult statisticsByDept(ExperimentDto exp) {
+        return this.success((Object)this.experimentService.selectExpDeptStatistics(exp));
     }
 }
 

@@ -39,5 +39,11 @@ public interface ExperimentService {
     public List<SysFileInfo> selectSysFileInfoList(Long var1);
 
     public List<List<ExpStep>> selectDetail(ExpBaseDto var1);
+
+    public void cleanDeletedExp();
+
+    public java.util.Map<String, Object> selectExpStatistics(ExperimentDto var1);
+
+    public java.util.List<java.util.Map<String, Object>> selectExpDeptStatistics(ExperimentDto var1);
 }
 
