@@ -171,7 +171,15 @@ extends BaseController {
     @Log(title="实验信息", businessType=BusinessType.EXPORT)
     @PreAuthorize(value="@ss.hasPermi('exp:expManage:export')")
     @PostMapping(value={"/export"})
-    public void export(HttpServletResponse response, ExpBaseDto exp) {
+    public void export(HttpServletResponse response, ExpBaseDto exp, String expIds) {
+        if (StringUtils.isNotEmpty(expIds)) {
+            String[] idArr = expIds.split(",");
+            Long[] ids = new Long[idArr.length];
+            for (int i = 0; i < idArr.length; i++) {
+                ids[i] = Long.valueOf(idArr[i].trim());
+            }
+            exp.setExpList(ids);
+        }
         if (exp.getExpId() != null && (exp.getExpList() == null || exp.getExpList().length == 0)) {
             exp.setExpList(new Long[]{exp.getExpId()});
         }

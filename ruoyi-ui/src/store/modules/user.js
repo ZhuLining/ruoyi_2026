@@ -15,7 +15,8 @@ const user = {
     nickName: '',
     avatar: '',
     roles: [],
-    permissions: []
+    permissions: [],
+    showDeptChart: false
   },
 
   mutations: {
@@ -39,6 +40,9 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
+    },
+    SET_SHOW_DEPT_CHART: (state, showDeptChart) => {
+      state.showDeptChart = showDeptChart
     }
   },
 
@@ -80,6 +84,7 @@ const user = {
           commit('SET_NAME', user.userName)
           commit('SET_NICK_NAME', user.nickName)
           commit('SET_AVATAR', avatar)
+          commit('SET_SHOW_DEPT_CHART', res.showDeptChart === true)
           cache.session.set('pwrChrtype', res.pwdChrtype)
           /* 初始密码提示 */
           if(res.isDefaultModifyPwd) {

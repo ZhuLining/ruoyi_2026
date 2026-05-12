@@ -31,7 +31,7 @@
           v-hasPermi="['exp:expManage:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="el-icon-delete" size="mini" @click="handleBatchDelete"
+        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="!selectedList || selectedList.length === 0" @click="handleBatchDelete"
           v-hasPermi="['exp:expManage:remove']">批量删除</el-button>
       </el-col>
     </el-row>

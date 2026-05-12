@@ -27,7 +27,10 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="el-icon-delete" size="mini" @click="handleBatchDelete" v-hasPermi="['exp:expManage:remove']">批量删除</el-button>
+        <el-button type="success" plain icon="el-icon-document-checked" size="mini" :disabled="!selectedList || selectedList.length === 0" @click="handleBatchCheck" v-hasPermi="['exp:expManage:check']">批量审批</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="!selectedList || selectedList.length === 0" @click="handleBatchDelete" v-hasPermi="['exp:expManage:remove']">批量删除</el-button>
       </el-col>
     </el-row>
 
@@ -62,11 +65,33 @@
     <check-dialog ref="checkDialog" @refresh="getList" />
     <!-- 查看详情弹窗 -->
     <descriptions-dialog ref="descDialog" :showResult="false" />
+
+    <!-- 批量审批弹窗 -->
+    <el-dialog title="批量审批" :visible.sync="batchCheckVisible" width="500px" append-to-body>
+      <el-form ref="batchCheckForm" :model="batchCheckForm" :rules="batchCheckRules" label-width="100px">
+        <el-form-item label="选中数量">
+          <span>{{ batchCheckForm.count }} 条</span>
+        </el-form-item>
+        <el-form-item label="审核结果" prop="checkStatus">
+          <el-radio-group v-model="batchCheckForm.checkStatus">
+            <el-radio label="1">通过</el-radio>
+            <el-radio label="2">驳回</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="审核意见" prop="checkRemark">
+          <el-input v-model="batchCheckForm.checkRemark" type="textarea" :rows="3" placeholder="请输入审核意见" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitBatchCheck">确 定</el-button>
+        <el-button @click="batchCheckVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listExp, delExp } from '@/api/experimental/experimental'
+import { listExp, delExp, checkExp } from '@/api/experimental/experimental'
 import CheckDialog from '../check'
 import DescriptionsDialog from '../descriptions'
 
@@ -88,6 +113,16 @@ export default {
         expCode: undefined,
         expStatus: 0,
         params: {}
+      },
+      // 批量审批
+      batchCheckVisible: false,
+      batchCheckForm: {
+        count: 0,
+        checkStatus: '1',
+        checkRemark: undefined
+      },
+      batchCheckRules: {
+        checkStatus: [{ required: true, message: '请选择审核结果', trigger: 'change' }]
       }
     }
   },
@@ -132,6 +167,33 @@ export default {
     },
     handleCheck(row) {
       this.$refs.checkDialog.open(row)
+    },
+    handleBatchCheck() {
+      if (!this.selectedList || this.selectedList.length === 0) {
+        this.$message.warning('请至少选择一条数据')
+        return
+      }
+      this.batchCheckForm = {
+        count: this.selectedList.length,
+        checkStatus: '1',
+        checkRemark: undefined
+      }
+      this.batchCheckVisible = true
+    },
+    submitBatchCheck() {
+      this.$refs.batchCheckForm.validate(valid => {
+        if (!valid) return
+        const data = {
+          expIdList: this.selectedList.map(item => item.expId),
+          expStatus: parseInt(this.batchCheckForm.checkStatus),
+          checkRemark: this.batchCheckForm.checkRemark
+        }
+        checkExp(data).then(() => {
+          this.$message.success('批量审批成功')
+          this.batchCheckVisible = false
+          this.getList()
+        })
+      })
     },
     handleView(row) {
       this.$refs.descDialog.open(row)

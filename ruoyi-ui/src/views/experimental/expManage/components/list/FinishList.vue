@@ -27,7 +27,11 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="el-icon-delete" size="mini" @click="handleBatchDelete"
+        <el-button type="warning" plain icon="el-icon-download" size="mini" :disabled="!selectedList || selectedList.length === 0" @click="handleExport"
+          v-hasPermi="['exp:expManage:export']">批量导出</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="!selectedList || selectedList.length === 0" @click="handleBatchDelete"
           v-hasPermi="['exp:expManage:remove']">批量删除</el-button>
       </el-col>
     </el-row>
@@ -41,7 +45,6 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">详情</el-button>
-          <el-button size="mini" type="text" icon="el-icon-download" @click="handleExport(scope.row)" v-hasPermi="['exp:expManage:export']">导出</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['exp:expManage:remove']">删除</el-button>
         </template>
       </el-table-column>
@@ -109,8 +112,13 @@ export default {
     handleDetail(row) {
       this.$refs.descriptionsDialog.open(row)
     },
-    handleExport(row) {
-      this.download('/experimental/expManage/export', { expId: row.expId }, `${row.expCode || row.expId}_experiment.xlsx`)
+    handleExport() {
+      if (!this.selectedList || this.selectedList.length === 0) {
+        this.$message.warning('请至少选择一条数据')
+        return
+      }
+      const expIds = this.selectedList.map(item => item.expId).join(',')
+      this.download('/experimental/expManage/export', { expIds: expIds }, `experiment_export.xlsx`)
     },
     handleDelete(row) {
       this.$confirm('是否确认删除该实验？', '提示', { type: 'warning' }).then(() => {

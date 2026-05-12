@@ -66,7 +66,13 @@
       <div class="step-section">
         <div class="step-section-header">
           <span class="step-section-title">实验步骤</span>
-          <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddStep">新增步骤</el-button>
+          <div class="step-header-actions">
+            <el-button v-if="form.stepList && form.stepList.length > 0" type="success" plain size="mini" icon="el-icon-document-checked" @click="openSaveSopTemDialog"
+              v-hasPermi="['exp:expSopTemplate:add']">保存为SOP模版</el-button>
+            <el-button v-if="form.stepList && form.stepList.length > 0" type="success" plain size="mini" icon="el-icon-document-checked" @click="openSaveExpTemDialog"
+              v-hasPermi="['exp:expTemplate:add']">保存为实验模版</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddStep">新增步骤</el-button>
+          </div>
         </div>
 
         <div v-for="(step, stepIndex) in form.stepList" :key="stepIndex" class="step-card">
@@ -141,16 +147,16 @@
     </div>
 
     <!-- 要素选择弹窗 -->
-    <el-dialog title="选择要素" :visible.sync="elementDialogVisible" width="750px" append-to-body :close-on-click-modal="false">
-      <el-row :gutter="15">
-        <el-col :span="7">
+    <el-dialog title="选择要素" :visible.sync="elementDialogVisible" width="780px" append-to-body :close-on-click-modal="false">
+      <el-row :gutter="20">
+        <el-col :span="8">
           <div class="dialog-tree-title">要素目录</div>
           <el-tree :data="eleCatalogTree" :props="{ label: 'catalogName', children: 'children' }"
-            :highlight-current="true" @node-click="handleEleCatalogClick" default-expand-all class="dialog-tree" />
+            :highlight-current="true" @node-click="handleEleCatalogClick" default-expand-all class="dialog-tree dialog-tree-fixed" />
         </el-col>
-        <el-col :span="17">
+        <el-col :span="16">
           <div class="dialog-table-title">要素列表</div>
-          <el-table ref="elementTable" :data="elementList" size="small" @selection-change="handleElementSelectionChange" height="350">
+          <el-table ref="elementTable" :data="elementList" size="small" @selection-change="handleElementSelectionChange" height="360">
             <el-table-column type="selection" width="45" />
             <el-table-column label="要素名称" prop="eleName" min-width="120" />
             <el-table-column label="要素编号" prop="eleCode" width="100" />
@@ -165,16 +171,16 @@
     </el-dialog>
 
     <!-- 设备选择弹窗 -->
-    <el-dialog title="选择设备" :visible.sync="assetsDialogVisible" width="750px" append-to-body :close-on-click-modal="false">
-      <el-row :gutter="15">
-        <el-col :span="7">
+    <el-dialog title="选择设备" :visible.sync="assetsDialogVisible" width="780px" append-to-body :close-on-click-modal="false">
+      <el-row :gutter="20">
+        <el-col :span="8">
           <div class="dialog-tree-title">资产目录</div>
           <el-tree :data="assetsCatalogTree" :props="{ label: 'label', children: 'children' }"
-            :highlight-current="true" @node-click="handleAssetsCatalogClick" default-expand-all class="dialog-tree" />
+            :highlight-current="true" @node-click="handleAssetsCatalogClick" default-expand-all class="dialog-tree dialog-tree-fixed" />
         </el-col>
-        <el-col :span="17">
+        <el-col :span="16">
           <div class="dialog-table-title">资产列表</div>
-          <el-table ref="assetsTable" :data="assetsList" size="small" @selection-change="handleAssetsSelectionChange" height="350">
+          <el-table ref="assetsTable" :data="assetsList" size="small" @selection-change="handleAssetsSelectionChange" height="360">
             <el-table-column type="selection" width="45" />
             <el-table-column label="资产名称" prop="assetsName" min-width="120" />
             <el-table-column label="资产类型" prop="assetsType" width="100" />
@@ -189,16 +195,16 @@
     </el-dialog>
 
     <!-- SOP模板选择弹窗 -->
-    <el-dialog title="选择SOP模板" :visible.sync="sopTemDialogVisible" width="750px" append-to-body :close-on-click-modal="false">
-      <el-row :gutter="15">
-        <el-col :span="7">
+    <el-dialog title="选择SOP模板" :visible.sync="sopTemDialogVisible" width="780px" append-to-body :close-on-click-modal="false">
+      <el-row :gutter="20">
+        <el-col :span="8">
           <div class="dialog-tree-title">模板目录</div>
           <el-tree :data="sopCatalogTree" :props="{ label: 'label', children: 'children' }"
-            :highlight-current="true" @node-click="handleSopCatalogClick" default-expand-all class="dialog-tree" />
+            :highlight-current="true" @node-click="handleSopCatalogClick" default-expand-all class="dialog-tree dialog-tree-fixed" />
         </el-col>
-        <el-col :span="17">
+        <el-col :span="16">
           <div class="dialog-table-title">模板列表</div>
-          <el-table ref="sopTemTable" :data="sopTemTableList" size="small" @row-click="handleSopTemRowClick" highlight-current-row height="350">
+          <el-table ref="sopTemTable" :data="sopTemTableList" size="small" @row-click="handleSopTemRowClick" highlight-current-row height="360">
             <el-table-column label="模板编号" prop="temCode" width="120" />
             <el-table-column label="模板名称" prop="temName" min-width="150" />
           </el-table>
@@ -221,19 +227,63 @@
         <el-button @click="expTemDialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 保存为SOP模板弹窗 -->
+    <el-dialog title="保存为SOP模版" :visible.sync="saveSopTemVisible" width="500px" append-to-body :close-on-click-modal="false">
+      <el-form ref="saveSopTemForm" :model="saveSopTemForm" :rules="saveSopTemRules" label-width="100px">
+        <el-form-item label="模版名称" prop="temName">
+          <el-input v-model="saveSopTemForm.temName" placeholder="请输入模版名称" />
+        </el-form-item>
+        <el-form-item label="模版编号" prop="temCode">
+          <el-input v-model="saveSopTemForm.temCode" placeholder="请输入模版编号" />
+        </el-form-item>
+        <el-form-item label="所属目录" prop="temCatalogId">
+          <treeselect
+            v-model="saveSopTemForm.temCatalogId"
+            :options="saveSopTemTree"
+            :normalizer="catalogNormalizer"
+            placeholder="请选择目录"
+            style="width: 100%;"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitSaveSopTem">确 定</el-button>
+        <el-button @click="saveSopTemVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 保存为实验模板弹窗 -->
+    <el-dialog title="保存为实验模版" :visible.sync="saveExpTemVisible" width="500px" append-to-body :close-on-click-modal="false">
+      <el-form ref="saveExpTemForm" :model="saveExpTemForm" :rules="saveExpTemRules" label-width="100px">
+        <el-form-item label="模版名称" prop="temName">
+          <el-input v-model="saveExpTemForm.temName" placeholder="请输入模版名称" />
+        </el-form-item>
+        <el-form-item label="模版编号" prop="temCode">
+          <el-input v-model="saveExpTemForm.temCode" placeholder="请输入模版编号" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitSaveExpTem">确 定</el-button>
+        <el-button @click="saveExpTemVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </el-dialog>
 </template>
 
 <script>
 import { addExp, updateExp, getExp } from '@/api/experimental/experimental'
-import { getSopTem, catalogTree, listSopTem } from '@/api/experimental/expSopTem'
-import { getTem, listTem } from '@/api/experimental/expTem'
+import { getSopTem, catalogTree, listSopTem, addSopTem } from '@/api/experimental/expSopTem'
+import { getTem, listTem, addTem } from '@/api/experimental/expTem'
 import { treeEleCatalog } from '@/api/system/eleCatalog'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { listEleTable } from '@/api/system/eleTable'
 import { assetsCatalogTree, allAssets } from '@/api/experimental/expAssets'
 
 export default {
   name: 'ExpEdit',
+  components: { Treeselect },
   data() {
     return {
       visible: false,
@@ -269,6 +319,21 @@ export default {
       selectedAssets: [],
       currentAssetsCatalogId: null,
       dateRange: [],
+      // 保存为模板
+      saveSopTemVisible: false,
+      saveSopTemForm: { temName: '', temCode: '', temCatalogId: undefined },
+      saveSopTemRules: {
+        temName: [{ required: true, message: '请输入模板名称', trigger: 'blur' }],
+        temCode: [{ required: true, message: '请输入模板编号', trigger: 'blur' }],
+        temCatalogId: [{ required: true, message: '请选择模板目录', trigger: 'change' }]
+      },
+      saveSopTemTree: [],
+      saveExpTemVisible: false,
+      saveExpTemForm: { temName: '', temCode: '' },
+      saveExpTemRules: {
+        temName: [{ required: true, message: '请输入模板名称', trigger: 'blur' }],
+        temCode: [{ required: true, message: '请输入模板编号', trigger: 'blur' }]
+      },
       form: {
         expId: undefined,
         expName: '',
@@ -592,6 +657,84 @@ export default {
     handleRemoveAsset(stepIndex, assetIndex) {
       this.form.stepList[stepIndex].assetsList.splice(assetIndex, 1)
     },
+    catalogNormalizer(node) {
+      return {
+        id: node.id,
+        label: node.label,
+        children: node.children
+      }
+    },
+    // 保存为SOP模板
+    openSaveSopTemDialog() {
+      if (!this.form.stepList || this.form.stepList.length === 0) {
+        this.$message.warning('请至少添加一个步骤')
+        return
+      }
+      this.saveSopTemForm = { temName: '', temCode: '', temCatalogId: undefined }
+      this.saveSopTemVisible = true
+      catalogTree().then(response => {
+        this.saveSopTemTree = response.data || []
+      }).catch(() => {})
+    },
+    submitSaveSopTem() {
+      this.$refs.saveSopTemForm.validate(valid => {
+        if (!valid) return
+        const data = this.buildTemData(this.saveSopTemForm.temName, this.saveSopTemForm.temCode)
+        data.temCatalogId = this.saveSopTemForm.temCatalogId
+        addSopTem(data).then(() => {
+          this.$message.success('保存为SOP模版成功')
+          this.saveSopTemVisible = false
+        })
+      })
+    },
+    // 保存为实验模板
+    openSaveExpTemDialog() {
+      if (!this.form.stepList || this.form.stepList.length === 0) {
+        this.$message.warning('请至少添加一个步骤')
+        return
+      }
+      this.saveExpTemForm = { temName: '', temCode: '' }
+      this.saveExpTemVisible = true
+    },
+    submitSaveExpTem() {
+      this.$refs.saveExpTemForm.validate(valid => {
+        if (!valid) return
+        const data = this.buildTemData(this.saveExpTemForm.temName, this.saveExpTemForm.temCode)
+        addTem(data).then(() => {
+          this.$message.success('保存为实验模版成功')
+          this.saveExpTemVisible = false
+        })
+      })
+    },
+    // 构建模板数据
+    buildTemData(temName, temCode) {
+      return {
+        temName: temName,
+        temCode: temCode,
+        stepList: this.form.stepList.map(step => ({
+          stepName: step.stepName,
+          stepCode: step.stepCode || '',
+          eleList: (step.eleList || []).map(group => ({
+            catalogId: group.catalogId,
+            catalogName: group.catalogName || '',
+            eleContent: (group.eleContent || []).map(ele => ({
+              eleId: ele.eleId,
+              eleName: ele.eleName,
+              eleCode: ele.eleCode || '',
+              eleType: ele.eleType || '',
+              remark: ele.remark || '',
+              eleValue: ele.eleValue || ''
+            }))
+          })),
+          assetsList: (step.assetsList || []).map(asset => ({
+            assetsId: asset.assetsId,
+            assetsName: asset.assetsName,
+            assetsType: asset.assetsType || '',
+            expAssetsNumber: asset.expAssetsNumber || 1
+          }))
+        }))
+      }
+    },
     // 提交
     submitForm() {
       this.$refs.form.validate(valid => {
@@ -655,6 +798,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+.step-header-actions {
+  display: flex;
+  gap: 8px;
 }
 .step-section-title {
   font-size: 14px;
@@ -745,6 +892,10 @@ export default {
   border: 1px solid #ebeef5;
   border-radius: 4px;
   padding: 8px;
+}
+.dialog-tree.dialog-tree-fixed {
+  height: 360px;
+  max-height: 360px;
 }
 ::v-deep .el-dialog__body {
   padding: 15px 20px;

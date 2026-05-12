@@ -250,7 +250,7 @@
           <el-input v-model="useForm.remainNumber" disabled />
         </el-form-item>
         <el-form-item label="出库数量" prop="useNumber">
-          <el-input-number v-model="useForm.useNumber" controls-position="right" :min="1" style="width: 100%" />
+          <el-input-number v-model="useForm.useNumber" controls-position="right" :min="1" :max="useForm.remainNumber" style="width: 100%" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="useForm.remark" type="textarea" :rows="3" placeholder="请输入备注" />
@@ -376,7 +376,17 @@ export default {
       useForm: {},
       useRules: {
         useNumber: [
-          { required: true, message: "出库数量不能为空", trigger: "blur" }
+          { required: true, message: "出库数量不能为空", trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              if (value > this.useForm.remainNumber) {
+                callback(new Error("出库数量不能超过剩余库存"))
+              } else {
+                callback()
+              }
+            },
+            trigger: "change"
+          }
         ]
       },
       detailQuery: {

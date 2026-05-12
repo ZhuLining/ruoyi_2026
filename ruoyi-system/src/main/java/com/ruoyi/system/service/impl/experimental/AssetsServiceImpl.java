@@ -143,6 +143,15 @@ implements AssetsService {
 
     @Override
     public int outAssets(AssetsUseDto assetsUse) {
+        AssetsDto assets = this.assetsMapper.selectExpAssetsByAssetsId(assetsUse.getAssetsId());
+        if (assets == null) {
+            throw new ServiceException("资产不存在");
+        }
+        long remain = (assets.getAssetsNumber() != null ? assets.getAssetsNumber() : 0)
+                - (assets.getUseTotalNumber() != null ? assets.getUseTotalNumber() : 0);
+        if (assetsUse.getUseNumber() == null || assetsUse.getUseNumber() > remain) {
+            throw new ServiceException("出库数量不能超过剩余库存，当前剩余：" + remain);
+        }
         assetsUse.setCreateTime(DateUtils.getNowDate());
         this.assetsMapper.insertExpAssetsUse(assetsUse);
         Long total = assetsUse.getUseNumber() + assetsUse.getUseTotalNumber();

@@ -83,10 +83,14 @@ public class SysLoginController
             loginUser.setPermissions(permissions);
             tokenService.refreshToken(loginUser);
         }
+        // 判断用户是否具备查看部门统计图表的权限（至少本部门数据权限，非仅本人）
+        boolean showDeptChart = user.isAdmin() || user.getRoles().stream()
+                .anyMatch(role -> !"5".equals(role.getDataScope()));
         AjaxResult ajax = AjaxResult.success();
         ajax.put("user", user);
         ajax.put("roles", roles);
         ajax.put("permissions", permissions);
+        ajax.put("showDeptChart", showDeptChart);
         ajax.put("pwdChrtype", getSysAccountChrtype());
         ajax.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
         ajax.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));

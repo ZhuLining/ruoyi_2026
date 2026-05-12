@@ -7,7 +7,9 @@
       <div class="welcome-body">
         <div class="welcome-left">
           <div class="welcome-title">{{ greeting }}，{{ userName }}</div>
-          <div class="welcome-desc">欢迎使用实验管理系统，今日共 {{ totalExp }} 条实验数据</div>
+          <div class="welcome-desc">欢迎使用实验管理系统，今日共
+            <span class="welcome-desc-num">{{ totalExp }}</span> 条实验数据
+          </div>
         </div>
         <div class="welcome-actions">
           <!-- <i class="el-icon-refresh refresh-btn" :class="{ spinning: refreshing }" @click="handleRefresh" title="刷新数据" /> -->
@@ -70,7 +72,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="chart-row">
+      <el-row v-if="showDeptChart" :gutter="20" class="chart-row">
         <el-col :span="24">
           <el-card class="chart-card" shadow="hover">
             <div slot="header" class="chart-header">各部门实验数量</div>
@@ -114,6 +116,9 @@ export default {
     },
     totalExp() {
       return (this.statistics.tobeReviewed || 0) + (this.statistics.unFinish || 0) + (this.statistics.finished || 0)
+    },
+    showDeptChart() {
+      return this.$store.getters.showDeptChart === true
     }
   },
   data() {
@@ -150,10 +155,13 @@ export default {
       })
     },
     loadStatistics() {
-      return Promise.all([
-        expStatistics(),
-        expDeptStatistics()
-      ]).then(([statRes, deptRes]) => {
+      const promises = [expStatistics()]
+      if (this.showDeptChart) {
+        promises.push(expDeptStatistics())
+      }
+      return Promise.all(promises).then(results => {
+        const statRes = results[0]
+        const deptRes = this.showDeptChart ? results[1] : { data: [] }
         const data = statRes.data || {}
         this.statistics = {
           tobeReviewed: data.tobeReviewed || 0,
@@ -164,7 +172,9 @@ export default {
         this.$nextTick(() => {
           this.initPieChart()
           this.initBarChart()
-          this.initDeptChart()
+          if (this.showDeptChart) {
+            this.initDeptChart()
+          }
         })
       })
     },
@@ -484,6 +494,12 @@ export default {
   font-size: 12px;
   color: #606266;
   margin-top: 4px;
+}
+
+.welcome-desc-num {
+  font-size: 16px;
+  font-weight: 600;
+  color: #409EFF;
 }
 
 .welcome-actions {
