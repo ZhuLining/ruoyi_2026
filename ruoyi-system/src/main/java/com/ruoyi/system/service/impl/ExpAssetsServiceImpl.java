@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.system.domain.ExpAssets;
 import com.ruoyi.system.mapper.ExpAssetsMapper;
 import com.ruoyi.system.service.IExpAssetsService;
@@ -42,6 +43,7 @@ public class ExpAssetsServiceImpl implements IExpAssetsService
     @Override
     public int insertExpAssets(ExpAssets expAssets)
     {
+        expAssets.setCreateTime(DateUtils.getNowDate());
         return expAssetsMapper.insertExpAssets(expAssets);
     }
 
@@ -51,6 +53,7 @@ public class ExpAssetsServiceImpl implements IExpAssetsService
     @Override
     public int updateExpAssets(ExpAssets expAssets)
     {
+        expAssets.setUpdateTime(DateUtils.getNowDate());
         return expAssetsMapper.updateExpAssets(expAssets);
     }
 

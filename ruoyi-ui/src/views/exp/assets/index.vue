@@ -100,7 +100,9 @@
           <el-table-column label="出库数量" align="center" prop="useTotalNumber" width="100" />
           <el-table-column label="剩余库存" align="center" width="100">
             <template slot-scope="scope">
-              <span>{{ scope.row.assetsNumber - scope.row.useTotalNumber }}</span>
+              <span :style="{ color: (scope.row.assetsNumber - scope.row.useTotalNumber) < (scope.row.assetsThreshold || 0) ? '#f56c6c' : '' }">
+                {{ scope.row.assetsNumber - scope.row.useTotalNumber }}
+              </span>
             </template>
           </el-table-column>
           <el-table-column label="创建时间" align="center" prop="createTime" width="160">
@@ -284,18 +286,29 @@
     </el-dialog>
 
     <!-- 选择用户对话框 -->
-    <el-dialog :title="'选择用户'" :visible.sync="userOpen" width="800px" append-to-body>
-      <el-table :data="userList" @row-click="handleUserSelect">
-        <el-table-column label="用户名称" align="center" prop="userName" />
-        <el-table-column label="用户昵称" align="center" prop="nickName" />
-      </el-table>
-      <pagination
-        v-show="userTotal>0"
-        :total="userTotal"
-        :page.sync="userQuery.pageNum"
-        :limit.sync="userQuery.pageSize"
-        @pagination="getUserList"
-      />
+    <el-dialog :title="'选择用户'" :visible.sync="userOpen" width="780px" append-to-body :close-on-click-modal="false">
+      <el-row :gutter="20">
+        <el-col :span="8">
+          <div class="dialog-tree-title">部门目录</div>
+          <el-tree :data="deptTree" :props="{ label: 'label', children: 'children' }"
+            :highlight-current="true" @node-click="handleDeptNodeClick" default-expand-all class="dialog-tree dialog-tree-fixed" />
+        </el-col>
+        <el-col :span="16">
+          <div class="dialog-table-title">用户列表</div>
+          <el-table :data="userList" size="small" @row-click="handleUserSelect" highlight-current-row height="360">
+            <el-table-column label="用户名称" align="center" prop="userName" />
+            <el-table-column label="用户昵称" align="center" prop="nickName" />
+            <el-table-column label="所属部门" align="center" prop="deptName" />
+          </el-table>
+          <pagination
+            v-show="userTotal>0"
+            :total="userTotal"
+            :page.sync="userQuery.pageNum"
+            :limit.sync="userQuery.pageSize"
+            @pagination="getUserList"
+          />
+        </el-col>
+      </el-row>
     </el-dialog>
 
     <!-- 资产目录新增/编辑弹窗 -->
@@ -320,7 +333,7 @@
 <script>
 import { listExpAssets, getExpAssets, addExpAssets, updateExpAssets, delExpAssets, useExpAssets } from "@/api/system/expAssets"
 import { listExpAssetsUse } from "@/api/system/expAssetsUse"
-import { listUser } from "@/api/system/user"
+import { listUser, deptTreeSelect } from "@/api/system/user"
 import { assetsCatalogTree, addAssetsCatalog, updateAssetsCatalog, getAssetsCatalog, delAssetsCatalog } from "@/api/experimental/expAssets"
 import Treeselect from "@riophae/vue-treeselect"
 import "@riophae/vue-treeselect/dist/vue-treeselect.css"
@@ -348,6 +361,7 @@ export default {
       userOpen: false,
       userList: [],
       userTotal: 0,
+      deptTree: [],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -396,7 +410,8 @@ export default {
       },
       userQuery: {
         pageNum: 1,
-        pageSize: 10
+        pageSize: 10,
+        deptId: undefined
       },
       // 目录树相关
       catalogTree: [],
@@ -663,7 +678,13 @@ export default {
     /** 选择用户 */
     handleSelectUser() {
       this.userOpen = true
+      this.userQuery.deptId = undefined
+      this.userQuery.pageNum = 1
+      this.deptTree = []
       this.getUserList()
+      deptTreeSelect().then(response => {
+        this.deptTree = response.data || []
+      }).catch(() => {})
     },
     /** 查询用户列表 */
     getUserList() {
@@ -677,6 +698,12 @@ export default {
       this.form.assetsStoreId = row.userId
       this.form.assetsStoreName = row.userName
       this.userOpen = false
+    },
+    /** 点击部门节点 */
+    handleDeptNodeClick(data) {
+      this.userQuery.deptId = data.id
+      this.userQuery.pageNum = 1
+      this.getUserList()
     }
   }
 }
@@ -729,5 +756,23 @@ export default {
 }
 .catalog-tree ::v-deep .el-tree-node.is-current > .el-tree-node__content .el-tree-node__expand-icon {
   color: #fff;
+}
+.dialog-tree-title,
+.dialog-table-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #303133;
+}
+.dialog-tree {
+  max-height: 380px;
+  overflow-y: auto;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 8px;
+}
+.dialog-tree.dialog-tree-fixed {
+  height: 360px;
+  max-height: 360px;
 }
 </style>

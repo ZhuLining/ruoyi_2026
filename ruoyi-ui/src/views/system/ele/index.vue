@@ -64,6 +64,11 @@
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+
+        <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
             <el-button
               type="primary"
               plain
@@ -72,6 +77,8 @@
               @click="handleAdd"
               v-hasPermi="['system:eleTable:add']"
             >新增</el-button>
+          </el-col>
+          <el-col :span="1.5">
             <el-button
               type="danger"
               plain
@@ -81,10 +88,7 @@
               @click="handleDelete"
               v-hasPermi="['system:eleTable:remove']"
             >删除</el-button>
-          </el-form-item>
-        </el-form>
-
-        <el-row :gutter="10" class="mb8">
+          </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
@@ -276,7 +280,6 @@ export default {
   },
   created() {
     this.getCatalogTree()
-    this.getList()
   },
   methods: {
     /** 查询元素列表 */
@@ -296,6 +299,14 @@ export default {
         this.catalogTreeOptionsForSelect = [
           { catalogId: 0, catalogName: '根目录', children: response.data }
         ]
+        this.$nextTick(() => {
+          if (this.catalogTreeOptions && this.catalogTreeOptions.length > 0) {
+            const firstNode = this.catalogTreeOptions[0]
+            this.$refs.tree.setCurrentKey(firstNode.catalogId)
+            this.queryParams.catalogId = firstNode.catalogId
+            this.handleQuery()
+          }
+        })
       }).catch(() => {})
     },
     // 筛选节点
