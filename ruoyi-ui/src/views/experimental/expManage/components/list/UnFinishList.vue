@@ -36,13 +36,16 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="expList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="实验编号" align="center" prop="expCode" />
-      <el-table-column label="实验名称" align="center" prop="expName" />
-      <el-table-column label="计划开始" align="center" prop="planStartTime" width="180" />
-      <el-table-column label="计划结束" align="center" prop="planEndTime" width="180" />
-      <el-table-column label="创建人" align="center" prop="createStaffName" />
+    <el-table v-loading="loading" :data="expList" @selection-change="handleSelectionChange" border :max-height="tableMaxHeight">
+      <el-table-column type="selection" width="55" align="center" fixed />
+      <el-table-column label="实验编号" align="center" prop="expCode" width="160" />
+      <el-table-column label="实验名称" align="center" prop="expName" min-width="240" :show-overflow-tooltip="true" />
+      <el-table-column label="计划开始" align="center" prop="planStartTime" width="160" />
+      <el-table-column label="计划结束" align="center" prop="planEndTime" width="160" />
+      <el-table-column label="创建人" align="center" prop="createStaffName" width="100" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160" />
+      <el-table-column label="审批人" align="center" prop="checkStaffName" width="100" />
+      <el-table-column label="审批说明" align="center" prop="checkRemark" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="审核状态" align="center" prop="expStatus" width="100">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.expStatus == 1" type="success" size="mini">已通过</el-tag>
@@ -59,7 +62,7 @@
           <el-tag v-else type="danger" size="mini">超时</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)"
             v-hasPermi="['exp:expManage:edit']">编辑</el-button>
@@ -93,6 +96,7 @@ export default {
       expList: [],
       selectedList: [],
       planTimeRange: [],
+      tableMaxHeight: 500,
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -104,6 +108,11 @@ export default {
   },
   created() {
     this.getList()
+    this.calcTableHeight()
+    window.addEventListener('resize', this.calcTableHeight)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.calcTableHeight)
   },
   methods: {
     getList() {
@@ -168,6 +177,11 @@ export default {
           this.$message.success('批量删除成功')
           this.getList()
         })
+      })
+    },
+    calcTableHeight() {
+      this.$nextTick(() => {
+        this.tableMaxHeight = window.innerHeight - 380
       })
     }
   }

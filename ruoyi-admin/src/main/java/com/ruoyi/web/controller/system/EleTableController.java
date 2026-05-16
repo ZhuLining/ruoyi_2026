@@ -67,6 +67,8 @@ public class EleTableController extends BaseController
             return error("新增元素'" + eleTable.getEleName() + "'失败，元素编码已存在");
         }
         eleTable.setCreateBy(getUsername());
+        eleTable.setUserId(getUserId());
+        eleTable.setDeptId(getDeptId());
         return toAjax(eleTableService.insertEleTable(eleTable));
     }
 

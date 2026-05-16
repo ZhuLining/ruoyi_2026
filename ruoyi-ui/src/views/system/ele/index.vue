@@ -21,6 +21,12 @@
               />
               <el-button
                 type="text"
+                icon="el-icon-delete"
+                @click="handleCatalogDelete"
+                v-hasPermi="['system:eleCatalog:remove']"
+              />
+              <el-button
+                type="text"
                 icon="el-icon-refresh"
                 @click="getCatalogTree"
               />
@@ -96,6 +102,7 @@
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="要素名称" align="center" prop="eleName" :show-overflow-tooltip="true" />
           <el-table-column label="要素类型" align="center" prop="eleType" width="120" />
+          <el-table-column label="默认值" align="center" prop="eleDefaultValue" :show-overflow-tooltip="true" />
           <el-table-column label="排序" align="center" prop="orderNum" width="80" />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
             <template slot-scope="scope">
@@ -293,7 +300,7 @@ export default {
     },
     /** 查询目录树结构 */
     getCatalogTree() {
-      treeEleCatalog().then(response => {
+      treeEleCatalog({ state: '10A' }).then(response => {
         this.catalogTreeOptions = response.data
         // 给Treeselect添加虚拟根节点，使parentId=0能正确显示
         this.catalogTreeOptionsForSelect = [
@@ -339,6 +346,10 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      const node = this.$refs.tree.getCurrentNode()
+      if (node) {
+        this.form.catalogId = node.catalogId
+      }
       this.open = true
       this.title = "添加元素"
     },
@@ -429,6 +440,24 @@ export default {
         this.catalogOpen = true
         this.catalogTitle = "修改目录"
       })
+    },
+    /** 删除目录按钮操作 */
+    handleCatalogDelete() {
+      const node = this.$refs.tree.getCurrentNode()
+      if (!node) {
+        this.$modal.msgWarning("请先选择要删除的目录")
+        return
+      }
+      if (node.children && node.children.length > 0) {
+        this.$modal.msgWarning("该目录下存在子目录，请先删除子目录")
+        return
+      }
+      this.$modal.confirm('是否确认删除目录"' + node.catalogName + '"？').then(() => {
+        return delEleCatalog(node.catalogId)
+      }).then(() => {
+        this.$modal.msgSuccess("删除成功")
+        this.getCatalogTree()
+      }).catch(() => {})
     },
     /** 提交目录按钮 */
     submitCatalogForm() {

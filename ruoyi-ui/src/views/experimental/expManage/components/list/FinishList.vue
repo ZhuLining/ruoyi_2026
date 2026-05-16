@@ -36,13 +36,13 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="expList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="实验编号" align="center" prop="expCode" />
-      <el-table-column label="实验名称" align="center" prop="expName" />
-      <el-table-column label="完成时间" align="center" prop="finishDate" width="180" />
-      <el-table-column label="完成人" align="center" prop="createStaffName" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+    <el-table v-loading="loading" :data="expList" @selection-change="handleSelectionChange" border :max-height="tableMaxHeight">
+      <el-table-column type="selection" width="55" align="center" fixed />
+      <el-table-column label="实验编号" align="center" prop="expCode" width="160" />
+      <el-table-column label="实验名称" align="center" prop="expName" min-width="240" :show-overflow-tooltip="true" />
+      <el-table-column label="完成时间" align="center" prop="finishDate" width="160" />
+      <el-table-column label="完成人" align="center" prop="createStaffName" width="100" />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="140" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">详情</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['exp:expManage:remove']">删除</el-button>
@@ -71,6 +71,7 @@ export default {
       expList: [],
       selectedList: [],
       planTimeRange: [],
+      tableMaxHeight: 500,
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -82,6 +83,11 @@ export default {
   },
   created() {
     this.getList()
+    this.calcTableHeight()
+    window.addEventListener('resize', this.calcTableHeight)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.calcTableHeight)
   },
   methods: {
     getList() {
@@ -138,6 +144,11 @@ export default {
           this.$message.success('批量删除成功')
           this.getList()
         })
+      })
+    },
+    calcTableHeight() {
+      this.$nextTick(() => {
+        this.tableMaxHeight = window.innerHeight - 380
       })
     }
   }

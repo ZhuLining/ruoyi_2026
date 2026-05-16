@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <el-tabs v-model="activeName" @tab-click="handleTabClick">
-      <el-tab-pane v-if="hasCheckPerm" label="待审核" name="tobeReviewed">
-        <TobeReviewed ref="tobeReviewed" @add="handleAdd" />
-      </el-tab-pane>
       <el-tab-pane label="待处理" name="unFinish">
         <UnFinishList ref="unFinish" @add="handleAdd" @edit="handleEdit" />
+      </el-tab-pane>
+      <el-tab-pane v-if="hasCheckPerm" label="待审核" name="tobeReviewed">
+        <TobeReviewed ref="tobeReviewed" @add="handleAdd" />
       </el-tab-pane>
       <el-tab-pane label="已完成" name="finish">
         <FinishList ref="finish" />
