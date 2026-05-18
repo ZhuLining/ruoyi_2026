@@ -80,6 +80,7 @@ spring:
       database: 0
       # 密码
       password:
+#      password: Lykj@2024
       # 连接超时时间
       timeout: 10s
       lettuce:
